@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Duplicate File Finder</title>
+
+<link href="https://fonts.googleapis.com/css?family=Roboto:400,500|Open+Sans" rel="stylesheet">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+<style>
+.bs-example {
+	margin: 10px;
+}
+</style>
+</head>
+<body>
+	<h6 th:text="${searchFolder}"/>
+
+	<!-- Accordion wrapper -->
+	<div class="bs-example">
+		<div class="accordion" id="accordionFiles">
+			<div class="card">
+				<div class="card-header" id="headingFiles">
+					<h2 class="mb-0">
+						<button type="button" class="btn btn-link" data-toggle="collapse"
+							data-target="#collapseFiles">Files Searched</button>
+					</h2>
+				</div>
+				<div id="collapseFiles" class="collapse" aria-labelledby="headingFiles"
+					data-parent="#accordionFiles">
+					<div class="card-body">
+						<div class="foundFiles" th:unless="${#lists.isEmpty(foundFiles)}">
+
+
+							<table class="table table-striped table-bordered table-sm"
+								id="filesTable">
+								<thead>
+									<tr>
+										<th scope="col">Path</th>
+										<th scope="col">Name</th>
+										<th scope="col">Date</th>
+										<th scope="col">Size</th>
+										<th scope="col">md5Hex</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr></tr>
+									<tr th:each="foundFile : ${foundFiles}">
+										<td width="20%" th:text="${foundFile.path}"></td>
+										<td width="20%" th:text="${foundFile.name}"></td>
+										<td width="20%" th:text="${foundFile.date}"></td>
+										<td width="10%" th:text="${foundFile.size}"></td>
+										<td width="20%" th:text="${foundFile.md5}"></td>
+									</tr>
+								</tbody>
+							</table>
+
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Accordion wrapper -->
+	<div class="bs-example">
+		<div class="accordion" id="duplicateFiles">
+			<div class="card">
+				<div class="card-header" id="headingDuplicates">
+					<h2 class="mb-0">
+						<button type="button" class="btn btn-link" data-toggle="collapse"
+							data-target="#collapseDuplicates" th:text="${result + ' - ' + duplicateFileSize}"></button>
+					</h2>
+				</div>
+				<div id="collapseDuplicates" class="collapse"
+					aria-labelledby="headingDuplicates" data-parent="#duplicateFiles">
+					<div class="card-body">
+						<div class="duplicateFiles"
+							th:unless="${#lists.isEmpty(duplicateFiles)}">
+
+
+							<table class="table table-striped table-bordered table-sm"
+								id="duplicateFilesTable">
+								<thead>
+									<tr>
+										<th scope="col">Path</th>
+										<th scope="col">Name</th>
+										<th scope="col">Date</th>
+										<th scope="col">Size</th>
+										<th scope="col">md5Hex</th>
+										<th scope="col">Archive</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr></tr>
+									<tr th:each="duplicateFile : ${duplicateFiles}">
+										<td width="20%" th:text="${duplicateFile.path}"></td>
+										<td width="10%" th:text="${duplicateFile.name}"></td>
+										<td width="10%" th:text="${duplicateFile.date}"></td>
+										<td width="10%" th:text="${duplicateFile.size}"></td>
+										<td width="20%" th:text="${duplicateFile.md5}"></td>
+										<form action="#" th:action="@{/archive}" method="post">
+											<td width="20%"><input type="hidden"
+												th:value="${duplicateFile.path}" name="path" id="path" />
+												<button type="submit" class="class=" btn
+													btn-primary"" name="action" id="btnArchive" value="Archive">
+													<span class="glyphicon glyphicon-download"
+														aria-hidden="true"></span> Archive
+												</button></td>
+										</form>
+									</tr>
+								</tbody>
+							</table>
+
+						</div>
+
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+
+
+
+
+
+
+</body>
+</html>
