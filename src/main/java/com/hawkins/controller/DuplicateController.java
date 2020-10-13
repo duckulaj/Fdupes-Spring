@@ -16,6 +16,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.github.cbismuth.fdupes.cli.SystemPropertyGetter;
@@ -105,6 +106,17 @@ public class DuplicateController {
 			return "main";
 		}
 	}
+	
+	@PostMapping("/archive")
+	public String archive(Model model) {
+		
+		List<ExtendedFile> duplicates = (List<ExtendedFile>) model.getAttribute("duplicateFiles");
+		
+		
+		
+		return "search";
+	}
+	
 	
 
 }	

@@ -59,5 +59,12 @@ public class Utils {
 		return uniqueFiles;
 
 	}
+	
+	public static void archiveFles(List<ExtendedFile> duplicates) {
+		
+		duplicates.forEach(duplicate -> {
+			//This is where we retrieve the archive locationd a zip the files using data and time as the zip filename
+		});
+	}
 
 }
