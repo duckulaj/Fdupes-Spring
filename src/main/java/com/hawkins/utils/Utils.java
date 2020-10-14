@@ -1,7 +1,6 @@
 package com.hawkins.utils;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -30,7 +29,7 @@ import com.hawkins.properties.DuplicateProperties;
 public class Utils {
 
 	private static String propertyFile;
-	
+
 	private static final Logger logger = LogManager.getLogger(Utils.class.getName());
 
 	public static List<ExtendedFile> getDuplicates (Multimap<PathElement, PathElement> duplicates) {
@@ -75,92 +74,63 @@ public class Utils {
 		return uniqueFiles;
 
 	}
-	
+
 	public static boolean archiveFles(List<ExtendedFile> duplicates) {
-		
+
 		boolean success = false;
-		
+		List<String> filePaths = new ArrayList<String>();
+
 		if (!duplicates.isEmpty()) {
 			DuplicateProperties duplicateProperties = DuplicateProperties.getInstance();
-			
+
 			String zipFile = new SimpleDateFormat("yyyy-MM-dd hh-mm-ss'.zip'").format(new Date());
 			String archiveFolder = duplicateProperties.getArchiveFolder();
-			
+
 			File archive = new File(archiveFolder);
 			if (!archive.exists()) {
 				archive.mkdir();
 			}
-			
-			List<String> filePaths = new ArrayList<String>();
 
 			duplicates.forEach(duplicate -> {
 				filePaths.add(duplicate.getPath());
 			});
-			
+
 			try {
-	            FileOutputStream fos = new FileOutputStream(archiveFolder + "/" + zipFile);
-	            ZipOutputStream zos = new ZipOutputStream(fos);
-	 
-	            for (String aFile : filePaths) {
-	                zos.putNextEntry(new ZipEntry(new File(aFile).getAbsolutePath()));
-	 
-	                byte[] bytes = Files.readAllBytes(Paths.get(aFile));
-	                zos.write(bytes, 0, bytes.length);
-	                zos.closeEntry();
-	            }
-	 
-	            zos.close();
-	            success = true;
-	 
-	        } catch (FileNotFoundException ex) {
-	            System.err.println("A file does not exist: " + ex);
-	        } catch (IOException ex) {
-	            System.err.println("I/O error: " + ex);
-	        }
-			
-			
-			/*
-			 * try {
-			 * 
-			 * FileOutputStream fos = new FileOutputStream(archiveFolder + "/" + zipFile);
-			 * ZipOutputStream zipOut = new ZipOutputStream(fos);
-			 * 
-			 * duplicates.forEach(duplicate -> {
-			 * 
-			 * //This is where we retrieve the archive locationd a zip the files using data
-			 * and time as the zip filename
-			 * 
-			 * File fileToZip = new File(duplicate.getPath()); try { FileInputStream fis =
-			 * new FileInputStream(fileToZip); ZipEntry zipEntry = new
-			 * ZipEntry(fileToZip.getName()); zipOut.putNextEntry(zipEntry);
-			 * 
-			 * byte[] bytes = new byte[1024]; int length; while((length = fis.read(bytes))
-			 * >= 0) { zipOut.write(bytes, 0, length); } fis.close();
-			 * 
-			 * } catch (FileNotFoundException fnfe) { if (logger.isDebugEnabled()) {
-			 * logger.debug(fnfe.getMessage()); } } catch (IOException ioe) { if
-			 * (logger.isDebugEnabled()) { logger.debug(ioe.getMessage()); } } });
-			 * 
-			 * success = true;
-			 * 
-			 * } catch (FileNotFoundException fnfe) { if (logger.isDebugEnabled()) {
-			 * logger.debug(fnfe.getMessage()); } }
-			 */
+				FileOutputStream fos = new FileOutputStream(archiveFolder + "/" + zipFile);
+				ZipOutputStream zos = new ZipOutputStream(fos);
+
+				for (String aFile : filePaths) {
+					zos.putNextEntry(new ZipEntry(new File(aFile).getAbsolutePath()));
+
+					byte[] bytes = Files.readAllBytes(Paths.get(aFile));
+					zos.write(bytes, 0, bytes.length);
+					zos.closeEntry();
+				}
+
+				zos.close();
+				success = true;
+
+			} catch (FileNotFoundException ex) {
+				System.err.println("A file does not exist: " + ex);
+			} catch (IOException ex) {
+				System.err.println("I/O error: " + ex);
+			}
+
 		}
-		
+
 		return success;
 	}
-	
+
 	public static void deleteDuplicates (List<ExtendedFile> duplicates) {
-		
+
 		duplicates.forEach(duplicate -> {
-			
+
 			File thisFile = new File(duplicate.getPath());
 			thisFile.delete();
-			
+
 		});
 	}
-	
+
 	public static Properties readProperties(String propertyType) {
 
 		long start = System.currentTimeMillis();
@@ -174,7 +144,7 @@ public class Utils {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Utils.readProperties :: Looking for {}Fdupes/{}", userHome, propertyType);
 		}
-		
+
 		File configFile = new File(userHome, "Fdupes/" + propertyType);
 
 		if (!configFile.exists() && logger.isDebugEnabled()) {
@@ -194,13 +164,13 @@ public class Utils {
 		}
 
 		long end = System.currentTimeMillis();
-		
+
 		if (logger.isDebugEnabled()) {
 			logger.debug("readProperties executed in {} ms", (end - start));
 		}
 		return props;
 	}
-	
+
 	public static Properties saveProperties(List<String> newProperties) {
 		try (OutputStream output = new FileOutputStream(Constants.CONFIGPROPERTIES)) {
 
@@ -208,7 +178,7 @@ public class Utils {
 
 			// set the properties value
 			prop.setProperty("archiveFolder", newProperties.get(0));
-			
+
 			// save properties to project root folder
 			prop.store(output, null);
 

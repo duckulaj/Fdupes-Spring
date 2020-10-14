@@ -65,23 +65,21 @@ public class DuplicateController {
 
             List<String> args = new ArrayList<String>();
             args.add(searchFolder);
-            
-           
-            
-            // DirectoryWalker directoryWalker = new DirectoryWalker();
-            
+             
             new DirectoryWalker().extractDuplicates(args, uniqueElements, duplicates);
 
-            // SystemPropertyGetter systemPropertyGetter= new SystemPropertyGetter(environment);
             if (new SystemPropertyGetter(environment).doOrganize()) {
                 pathOrganizer.organize(uniqueElements);
             }
 
-            final Path csvReport = new DuplicatesCsvReporter().report(duplicates);
-            LOGGER.info("CSV report created at [{}]", csvReport);
-
-            final Path logReport = new DuplicatesLogReporter(pathEscapeFunction).report(duplicates);
-            LOGGER.info("Log report created at [{}]", logReport);
+			/*
+			 * final Path csvReport = new DuplicatesCsvReporter().report(duplicates);
+			 * LOGGER.info("CSV report created at [{}]", csvReport);
+			 * 
+			 * final Path logReport = new
+			 * DuplicatesLogReporter(pathEscapeFunction).report(duplicates);
+			 * LOGGER.info("Log report created at [{}]", logReport);
+			 */            
             
             List<ExtendedFile> duplicateFiles =  Utils.getDuplicates(duplicates);
             this.duplicateList = duplicateFiles;
