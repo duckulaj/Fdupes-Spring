@@ -151,6 +151,16 @@ public class Utils {
 		return success;
 	}
 	
+	public static void deleteDuplicates (List<ExtendedFile> duplicates) {
+		
+		duplicates.forEach(duplicate -> {
+			
+			File thisFile = new File(duplicate.getPath());
+			thisFile.delete();
+			
+		});
+	}
+	
 	public static Properties readProperties(String propertyType) {
 
 		long start = System.currentTimeMillis();

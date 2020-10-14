@@ -122,6 +122,7 @@ public class DuplicateController {
 				 /*
 				  * Need to introduce a flag to say whether to delete files that have been archived
 				  */
+				 Utils.deleteDuplicates(this.duplicateList);
 			 }
 		}
 			
