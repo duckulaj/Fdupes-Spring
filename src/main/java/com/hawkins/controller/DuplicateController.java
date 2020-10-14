@@ -46,6 +46,8 @@ public class DuplicateController {
 	
 	private static final Logger LOGGER = getLogger(DuplicateController.class);
 	
+	private List<ExtendedFile> duplicateList;
+	
 	@GetMapping("/")
 	public String initial(Model model) {
 
@@ -82,6 +84,8 @@ public class DuplicateController {
             LOGGER.info("Log report created at [{}]", logReport);
             
             List<ExtendedFile> duplicateFiles =  Utils.getDuplicates(duplicates);
+            this.duplicateList = duplicateFiles;
+            
             List<ExtendedFile> uniqueFiles =  Utils.getUniqueFiles(uniqueElements);
             String result = duplicateFiles.size() + " found";
             String duplicateFileSize = BufferedAnalyzer.returnDuplicationSize(duplicates);
@@ -110,10 +114,13 @@ public class DuplicateController {
 	@PostMapping("/archive")
 	public String archive(Model model) {
 		
-		List<ExtendedFile> duplicates = (List<ExtendedFile>) model.getAttribute("duplicateFiles");
+		List<ExtendedFile> duplicates = this.duplicateList;
 		
-		
-		
+		if (duplicates != null) {
+			 if (Utils.archiveFles(duplicates)) {
+			 }
+		}
+			
 		return "search";
 	}
 	

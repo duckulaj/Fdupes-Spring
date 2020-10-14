@@ -1,10 +1,21 @@
 package com.hawkins.utils;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,9 +23,12 @@ import org.apache.logging.log4j.Logger;
 import com.github.cbismuth.fdupes.container.immutable.PathElement;
 import com.google.common.collect.Multimap;
 import com.hawkins.file.ExtendedFile;
+import com.hawkins.properties.DuplicateProperties;
 
 public class Utils {
 
+	private static String propertyFile;
+	
 	private static final Logger logger = LogManager.getLogger(Utils.class.getName());
 
 	public static List<ExtendedFile> getDuplicates (Multimap<PathElement, PathElement> duplicates) {
@@ -60,11 +74,130 @@ public class Utils {
 
 	}
 	
-	public static void archiveFles(List<ExtendedFile> duplicates) {
+	public static boolean archiveFles(List<ExtendedFile> duplicates) {
 		
-		duplicates.forEach(duplicate -> {
-			//This is where we retrieve the archive locationd a zip the files using data and time as the zip filename
-		});
+		boolean success = false;
+		
+		if (!duplicates.isEmpty()) {
+			DuplicateProperties duplicateProperties = DuplicateProperties.getInstance();
+			
+			String zipFile = new SimpleDateFormat("yyyy-MM-dd hh-mm-ss'.zip'").format(new Date());
+			String archiveFolder = duplicateProperties.getArchiveFolder();
+			
+			File archive = new File(archiveFolder);
+			if (!archive.exists()) {
+				archive.mkdir();
+			}
+
+			try {
+				
+				FileOutputStream fos = new FileOutputStream(archiveFolder + "/"  + zipFile);
+		        ZipOutputStream zipOut = new ZipOutputStream(fos);
+		        
+				duplicates.forEach(duplicate -> {
+					
+					//This is where we retrieve the archive locationd a zip the files using data and time as the zip filename
+				
+					File fileToZip = new File(duplicate.getPath());
+					try {
+		            FileInputStream fis = new FileInputStream(fileToZip);
+		            ZipEntry zipEntry = new ZipEntry(fileToZip.getName());
+		            zipOut.putNextEntry(zipEntry);
+		 
+		            byte[] bytes = new byte[1024];
+		            int length;
+		            while((length = fis.read(bytes)) >= 0) {
+		                zipOut.write(bytes, 0, length);
+		            }
+		            fis.close();
+		            
+					} catch (FileNotFoundException fnfe) {
+						if (logger.isDebugEnabled()) {
+							logger.debug(fnfe.getMessage());
+						}
+					} catch (IOException ioe) {
+						if (logger.isDebugEnabled()) {
+							logger.debug(ioe.getMessage());
+						}
+					}
+				});
+				
+				success = true;
+		        
+			} catch (FileNotFoundException fnfe) {
+				if (logger.isDebugEnabled()) {
+					logger.debug(fnfe.getMessage());
+				}
+			}
+		}
+		
+		return success;
 	}
+	
+	public static Properties readProperties(String propertyType) {
+
+		long start = System.currentTimeMillis();
+
+		String userHome = System.getProperty("user.home");
+
+		if(userHome.charAt(userHome.length()-1)!=File.separatorChar){
+			userHome += File.separator;
+		}
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("Utils.readProperties :: Looking for {}Fdupes/{}", userHome, propertyType);
+		}
+		
+		File configFile = new File(userHome, "Fdupes/" + propertyType);
+
+		if (!configFile.exists() && logger.isDebugEnabled()) {
+			logger.debug("{} does not exist", propertyType);
+		}
+
+		Properties props = new Properties();
+
+		try {
+			FileReader reader = new FileReader(configFile);
+			props.load(reader);
+			reader.close();
+		} catch (FileNotFoundException fnfe) {
+			logger.debug(fnfe.toString());
+		} catch (IOException ioe) {
+			logger.debug(ioe.toString());
+		}
+
+		long end = System.currentTimeMillis();
+		
+		if (logger.isDebugEnabled()) {
+			logger.debug("readProperties executed in {} ms", (end - start));
+		}
+		return props;
+	}
+	
+	public static Properties saveProperties(List<String> newProperties) {
+		try (OutputStream output = new FileOutputStream(Constants.CONFIGPROPERTIES)) {
+
+			Properties prop = new Properties();
+
+			// set the properties value
+			prop.setProperty("archiveFolder", newProperties.get(0));
+			
+			// save properties to project root folder
+			prop.store(output, null);
+
+			if (logger.isDebugEnabled()) {
+				logger.debug(prop);
+			}
+
+		} catch (IOException io) {
+			if (logger.isDebugEnabled()) {
+				logger.debug(io.getMessage());
+			}
+		}
+
+		return readProperties(propertyFile);
+	}
+
+
 
 }
