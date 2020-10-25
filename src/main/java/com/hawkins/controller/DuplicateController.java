@@ -5,7 +5,6 @@ import static com.google.common.collect.Sets.newConcurrentHashSet;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -23,10 +22,7 @@ import com.github.cbismuth.fdupes.cli.SystemPropertyGetter;
 import com.github.cbismuth.fdupes.container.immutable.PathElement;
 import com.github.cbismuth.fdupes.io.BufferedAnalyzer;
 import com.github.cbismuth.fdupes.io.DirectoryWalker;
-import com.github.cbismuth.fdupes.io.PathEscapeFunction;
 import com.github.cbismuth.fdupes.io.PathOrganizer;
-import com.github.cbismuth.fdupes.report.DuplicatesCsvReporter;
-import com.github.cbismuth.fdupes.report.DuplicatesLogReporter;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.hawkins.file.ExtendedFile;
@@ -37,9 +33,6 @@ public class DuplicateController {
 	
 	@Autowired
     private Environment environment;
-	
-	@Autowired
-	private PathEscapeFunction pathEscapeFunction;
 	
 	@Autowired
 	private PathOrganizer pathOrganizer;
