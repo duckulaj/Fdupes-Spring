@@ -72,7 +72,9 @@ public class SystemPropertyGetter {
     	
     	if (environment == null) return 1;
     	
-        return environment.getProperty("fdupes.parallelism", Integer.class, 1);
+    	int parallelism = environment.getProperty("fdupes.parallelism", Integer.class, 1);
+    	LOGGER.info("parallelism = {}", parallelism);
+        return parallelism;
     }
 
     public boolean doOrganize() {
