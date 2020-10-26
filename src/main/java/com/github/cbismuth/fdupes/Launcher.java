@@ -67,32 +67,32 @@ public class Launcher {
         this.systemPropertyGetter = systemPropertyGetter;
     }
 
-   public Path launch(final Collection<String> args, Environment env) throws IOException {
-        try {
-            final Set<PathElement> uniqueElements = newConcurrentHashSet();
-            final Multimap<PathElement, PathElement> duplicates = synchronizedListMultimap(ArrayListMultimap.create());
-
-            directoryWalker.extractDuplicates(args, uniqueElements, duplicates);
-
-            if (systemPropertyGetter.doOrganize()) {
-                pathOrganizer.organize(uniqueElements);
-            }
-
-            final Path csvReport = new DuplicatesCsvReporter().report(duplicates);
-            LOGGER.info("CSV report created at [{}]", csvReport);
-
-            final Path logReport = new DuplicatesLogReporter(pathEscapeFunction).report(duplicates);
-            LOGGER.info("Log report created at [{}]", csvReport);
-
-            return logReport;
-        } catch (final OutOfMemoryError ignored) {
-            LOGGER.error("Not enough memory, solutions are:");
-            LOGGER.error("\t- increase Java heap size (e.g. -Xmx512m),");
-            LOGGER.error("\t- decrease byte buffer size (e.g. -Dfdupes.buffer.size=8k - default is 64k),");
-            LOGGER.error("\t- reduce the level of parallelism (e.g. -Dfdupes.parallelism=1).");
-
-            return null;
-        }
-    }
+	/*
+	 * public Path launch(final Collection<String> args, Environment env) throws
+	 * IOException { try { final Set<PathElement> uniqueElements =
+	 * newConcurrentHashSet(); final Multimap<PathElement, PathElement> duplicates =
+	 * synchronizedListMultimap(ArrayListMultimap.create());
+	 * 
+	 * directoryWalker.extractDuplicates(args, uniqueElements, duplicates);
+	 * 
+	 * if (systemPropertyGetter.doOrganize()) {
+	 * pathOrganizer.organize(uniqueElements); }
+	 * 
+	 * final Path csvReport = new DuplicatesCsvReporter().report(duplicates);
+	 * LOGGER.info("CSV report created at [{}]", csvReport);
+	 * 
+	 * final Path logReport = new
+	 * DuplicatesLogReporter(pathEscapeFunction).report(duplicates);
+	 * LOGGER.info("Log report created at [{}]", csvReport);
+	 * 
+	 * return logReport; } catch (final OutOfMemoryError ignored) {
+	 * LOGGER.error("Not enough memory, solutions are:");
+	 * LOGGER.error("\t- increase Java heap size (e.g. -Xmx512m),"); LOGGER.
+	 * error("\t- decrease byte buffer size (e.g. -Dfdupes.buffer.size=8k - default is 64k),"
+	 * ); LOGGER.
+	 * error("\t- reduce the level of parallelism (e.g. -Dfdupes.parallelism=1).");
+	 * 
+	 * return null; } }
+	 */
 
 }
