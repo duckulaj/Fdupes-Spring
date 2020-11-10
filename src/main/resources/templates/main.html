@@ -17,7 +17,58 @@
 </style>
 </head>
 <body>
-	<h6 th:text="${searchFolder}"/>
+	<div class="bs-example">
+		<div class="accordion" id="statistics">
+			<div class="card">
+				<div class="card-header" id="statisticsFiles">
+					<h2 class="mb-0">
+						<button type="button" class="btn btn-link" data-toggle="collapse"
+							data-target="#collapseStatistics">Information</button>
+					</h2>
+				</div>
+				<div id="collapseStatistics" class="collapse" aria-labelledby="statisticsFiles"
+					data-parent="#accordionFiles">
+					<div class="card-body">
+						
+							<table class="table table-striped table-bordered table-sm"
+								id="statisticsTable">
+								<tbody>
+									<tr>
+										<td width="20%">Search Folder</td>
+										<td width="20%" th:text="${searchFolder}"></td>
+									</tr>
+									<tr>
+										<td width="20%">Number of Directories searched</td>
+										<td width="20%" th:text="${directoriesSearched}"></td>
+									</tr>
+									<tr>
+										<td width="20%">Number of files searched</td>
+										<td width="20%" th:text="${directoriesSearched}"></td>
+									</tr>
+									<tr>
+										<td width="20%">Duplicates found by size</td>
+										<td width="10%" th:text="${duplicateCountBySize}"></td>
+									</tr>
+									<tr>
+										<td width="20%">Duplicates found by md5 hash</td>
+										<td width="10%" th:text="${duplicateCountByMd5}"></td>
+									</tr>
+									<tr>
+										<td width="20%">Duplicates found by byte comparison</td>
+										<td width="10%" th:text="${duplicateCountByByte}"></td>
+									<tr>
+										<td width="20%">Duplicates file size</td>
+										<td width="20%" th:text="${duplicateFileSize}"></td> 
+									</tr>
+								</tbody>
+							</table>
+
+						
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 
 	<!-- Accordion wrapper -->
 	<div class="bs-example">
@@ -73,7 +124,7 @@
 				<div class="card-header" id="headingDuplicates">
 					<h2 class="mb-0">
 						<button type="button" class="btn btn-link" data-toggle="collapse"
-							data-target="#collapseDuplicates" th:text="${result + ' - ' + duplicateFileSize}"></button>
+							data-target="#collapseDuplicates">Duplicates Found</button>
 					</h2>
 				</div>
 				<div id="collapseDuplicates" class="collapse"

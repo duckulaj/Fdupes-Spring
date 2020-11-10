@@ -1,5 +1,7 @@
 package com.hawkins.utils;
 
+import static com.github.cbismuth.fdupes.metrics.MetricRegistrySingleton.getMetricRegistry;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -12,18 +14,23 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.Gauge;
 import com.github.cbismuth.fdupes.container.immutable.PathElement;
 import com.google.common.collect.Multimap;
 import com.hawkins.file.ExtendedFile;
+import com.hawkins.objects.GaugeResults;
 import com.hawkins.properties.DuplicateProperties;
 
 public class Utils {
@@ -195,6 +202,51 @@ public class Utils {
 		return readProperties(propertyFile);
 	}
 
+	public static GaugeResults getGaugeResults() {
 
+		GaugeResults results = new GaugeResults();
+		SortedMap<String, Gauge> gauges = getMetricRegistry().getGauges();
+		SortedMap<String, Counter> counters = getMetricRegistry().getCounters();
+
+		if (gauges != null && gauges.size() > 0) {
+			for (String key : gauges.keySet()) {
+				if (key.equalsIgnoreCase(Constants.DUPLICATE_BY_SIZE_COUNT_STRING)) {
+					results.setSizeCount(Integer.valueOf(gauges.get(key).getValue().toString()));
+				}
+				if (key.equalsIgnoreCase(Constants.DUPLICATE_BY_MD5_COUNT_STRING)) {
+					results.setMd5Count(Integer.valueOf(gauges.get(key).getValue().toString()));
+				}
+				if (key.equalsIgnoreCase(Constants.DUPLICATE_BY_BYTE_COUNT_STRING)) {
+					results.setByteCount(Integer.valueOf(gauges.get(key).getValue().toString()));
+				}
+			}
+		}
+
+		if (counters != null && counters.size() > 0) {
+			for (String key : counters.keySet()) {
+				if (key.equalsIgnoreCase(Constants.DUPLICATE_BY_SIZE_COUNT_STRING)) {
+					results.setSizeCount(Long.valueOf(counters.get(key).getCount()).intValue());
+				}
+				if (key.equalsIgnoreCase(Constants.FILES_SEARCHED)) {
+					results.setFilesSearched(Long.valueOf(counters.get(key).getCount()).intValue());
+				}
+				if (key.equalsIgnoreCase(Constants.DIRECTORIES_SEARCHED_COUNT)) {
+					results.setDirectoriesSearched(Long.valueOf(counters.get(key).getCount()).intValue());
+				}
+			}
+		}
+		
+		return results;
+	}
+	
+	public static void resetCounters() {
+
+		// reset all counters
+
+		for (Map.Entry<String, Counter> entry : getMetricRegistry().getCounters().entrySet()) {
+			entry.getValue().dec(entry.getValue().getCount());
+		}
+
+	}
 
 }
