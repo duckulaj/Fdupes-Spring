@@ -110,7 +110,7 @@ public class DuplicateController {
         
             GaugeResults gaugeResults = Utils.getGaugeResults();
             
-            model.addAttribute("searchFolder", searchFolder);	
+            model.addAttribute("searchFolder", searchFolder);
     		model.addAttribute("foundFiles", uniqueFiles);
     		model.addAttribute("duplicateFiles", duplicateFiles);
     		model.addAttribute("result", gaugeResults.getByteCount());
