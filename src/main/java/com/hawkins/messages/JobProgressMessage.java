@@ -5,7 +5,7 @@ public class JobProgressMessage {
 	private String name;
 	private String message;
 	
-	public JobProgressMessage(String name, String message) {
+	public JobProgressMessage(String name) {
 		this.name = name;
 		this.message = message;
 	}
