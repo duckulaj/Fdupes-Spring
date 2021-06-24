@@ -1,7 +1,5 @@
 package com.hawkins.controller;
 
-import static com.codahale.metrics.MetricRegistry.name;
-import static com.github.cbismuth.fdupes.metrics.MetricRegistrySingleton.getMetricRegistry;
 import static com.google.common.collect.Multimaps.synchronizedListMultimap;
 import static com.google.common.collect.Sets.newConcurrentHashSet;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -10,7 +8,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.SortedMap;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +19,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.codahale.metrics.Gauge;
 import com.github.cbismuth.fdupes.cli.SystemPropertyGetter;
 import com.github.cbismuth.fdupes.container.immutable.PathElement;
 import com.github.cbismuth.fdupes.io.BufferedAnalyzer;
@@ -34,7 +30,6 @@ import com.hawkins.file.ExtendedFile;
 import com.hawkins.jobs.DuplicateFinderJob;
 import com.hawkins.objects.GaugeResults;
 import com.hawkins.service.DuplicateFinderService;
-import com.hawkins.utils.Constants;
 import com.hawkins.utils.Utils;
 
 @Controller
