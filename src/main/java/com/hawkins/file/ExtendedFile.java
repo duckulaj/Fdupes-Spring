@@ -2,21 +2,12 @@ package com.hawkins.file;
 
 public class ExtendedFile {
 	
-	public ExtendedFile(String path, String name, String md5, String date, long size, boolean duplicate) {
-		this.path = path;
-		this.name = name;
-		this.md5 = md5;
-		this.date = date;
-		this.size = size;
-		this.duplicate = duplicate;
-	}
-	
-	String path;
-	String name;
-	String md5;
-	String date;
-	long size;
-	boolean duplicate;
+	private String path;
+	private String name;
+	private String md5;
+	private String date;
+	private long size;
+	private boolean duplicate;
 	
 	public ExtendedFile() {
 		

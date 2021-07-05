@@ -37,7 +37,7 @@ public class SystemPropertyGetter {
 
     private static final Logger LOGGER = getLogger(SystemPropertyGetter.class);
 
-    public static final int DEFAULT_BUFFER_SIZE = 4 * 1024;
+    private static final int DEFAULT_BUFFER_SIZE = 4 * 1024;
 
     @Autowired
     private final Environment environment;

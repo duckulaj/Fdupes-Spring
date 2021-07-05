@@ -39,7 +39,7 @@ import static java.util.stream.Collectors.toList;
 @Component
 public class DuplicateFinderByKey {
 
-    public <K> Collection<PathElement> getDuplicates(final Collection<PathElement> input,
+    <K> Collection<PathElement> getDuplicates(final Collection<PathElement> input,
                                                      final Function<PathElement, K> keyMapper,
                                                      final Collection<PathElement> uniqueElements) {
         Preconditions.checkNotNull(input, "null pass stream");

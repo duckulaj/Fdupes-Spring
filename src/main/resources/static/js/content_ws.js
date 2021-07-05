@@ -22,7 +22,7 @@ $(document).ready(function()
     
 
     connect();
-    //setTimeout(updateProgress, 10);
+    //setTimeout(updateProgress, 5);
 });
 
 function connect(){
@@ -55,45 +55,38 @@ function update(newMessage){
     if(rows.length === 0)
     {
         $('#tableBody').append('<tr id="'+newMessage.jobName+'">' +
-            /*'<td>'+newMessage.jobName+'</td>'+*/
-            '<td>'+newMessage.originalFileName+'</td>' +
-            '<td>'+
-            '<div class="progress"> <div class="progress-bar" role="progressbar" aria-valuenow="" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em;"> 0%</div></div>' +
-            '</td>'+
-            '<td class="state"></td>' +
-            '<td><form name="interruptForm" action="/interrupt">' +
-            '<input type="hidden" value="'+newMessage.jobName+'" name="name" id="name" />' +
-            '<button id="btnInterrupt" value="'+newMessage.jobName+'" type="submit" class="btn btn-outline-success">' +
-            '<span class="glyphicon glyphicon-stop" aria-hidden="true"></span>' +
-            ' Stop Job' +
-            '</button>' +
-            '</form></td>' +
-            /*'<td><form name="pauseForm" action="/pause">' +
-            '<input type="hidden" value="'+newMessage.jobName+'" name="name" id="name" />' +
-            '<button id="btnPause" value="'+newMessage.jobName+'" type="submit" class="btn btn-outline-success">' +
-            '<span class="glyphicon glyphicon-pause" aria-hidden="true"></span>' +
-            ' Pause Job' +
-            '</button>' +
-            '</form></td>' +*/
+        	'<td>Job Name</td>' +
+        	'<td>' + newMessage.jobName + '</td>' +
+        	'</tr>' +
+        	'<tr>' +
+        	'<td>Search Directory</td>' +
+            '<td>'+newMessage.directoryToSearch+'</td>' +
+            '</tr>' +
+            '<tr>' +
+            '<td>Directories</td>' +
+            '<td>'+newMessage.directoryCount+'</td>' +
+            '</tr>' +
+            '<tr>' +
+            '<td>Files</td>' +
+            '<td>'+newMessage.fileCount+'</td>' +
+            '</tr>' +
+            '<tr>' +
+            '<td>Duplicates By Size</td>' +
+            '<td>'+newMessage.duplicatesBySizeCount+'</td>' +
+            '</tr>'
+             +
+            '<tr>' +
+            '<td>Duplicates By MD5</td>' +
+            '<td>'+newMessage.duplicatesByMD5Count+'</td>' +
+            '</tr>' +
+            '<tr>' +
+            '<td>Duplicates By Byte</td>' +
+            '<td>'+newMessage.duplicatesByByteCount+'</td>' +
+            '</tr>' +
+            '<tr>' +
+            '<td>Duplicates Total Byte</td>' +
+            '<td>'+newMessage.duplicatesTotalSize+'</td>' +
             '</tr>');
     }
     
-    //set stuffs
-    var parentDiv = $('#'+newMessage.jobName);
-    parentDiv.find('.progress-bar').html(newMessage.progress +"%");
-    parentDiv.find('.progress-bar').css('width',newMessage.progress+'%').attr("aria-valuenow",newMessage.progress);
-    parentDiv.find('.state').text(newMessage.state);
-    if(newMessage.state == "DONE")
-    {
-        parentDiv.removeClass("active info success").addClass("success");
-    }
-    else if(newMessage.state == "RUNNING")
-    {
-        parentDiv.removeClass("active info success").addClass("active");
-    }
-    else if(newMessage.state == "NEW")
-    {
-        parentDiv.removeClass("active info success").addClass("info");
-    }
-    //end set stuffs
 }

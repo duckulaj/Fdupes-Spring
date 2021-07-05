@@ -46,17 +46,13 @@ public class PathOrganizer {
 
     private static final Logger LOGGER = getLogger(PathOrganizer.class);
 
-    private final PathAnalyser pathAnalyser;
-
-    public PathOrganizer(final PathAnalyser pathAnalyser) {
-        this.pathAnalyser = pathAnalyser;
-    }
+    private final PathAnalyser pathAnalyser = new PathAnalyser();
 
     public void organize(final Iterable<PathElement> uniqueElements) throws IOException {
         organize(System.getProperty("user.dir"), String.valueOf(currentTimeMillis()), uniqueElements);
     }
 
-    public void organize(final String workingDirectory,
+    private void organize(final String workingDirectory,
                          final String subDirectoryName,
                          final Iterable<PathElement> uniqueElements) throws IOException {
         final Path directoryToCreate = Paths.get(workingDirectory, subDirectoryName);

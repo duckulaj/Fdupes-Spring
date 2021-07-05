@@ -11,8 +11,10 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.Environment;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,13 +29,21 @@ import com.github.cbismuth.fdupes.io.PathOrganizer;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.hawkins.file.ExtendedFile;
-import com.hawkins.jobs.DuplicateFinderJob;
+import com.hawkins.jobs.DuplicateJob;
 import com.hawkins.objects.GaugeResults;
+import com.hawkins.properties.DuplicateProperties;
 import com.hawkins.service.DuplicateFinderService;
 import com.hawkins.utils.Utils;
 
 @Controller
 public class DuplicateController {
+	
+	@Qualifier("taskExecutor")
+	@Autowired
+	private ThreadPoolTaskExecutor myExecutor;
+	
+	@Autowired
+	private DuplicateFinderService myService;
 	
 	@Autowired
     private Environment environment;
@@ -41,22 +51,18 @@ public class DuplicateController {
 	@Autowired
 	private PathOrganizer pathOrganizer;
 	
+	@Autowired
+	private SimpMessagingTemplate template;
+	
 	private static final Logger LOGGER = getLogger(DuplicateController.class);
 	
-	@Autowired
-	private DuplicateFinderService myService;
+	private List<ExtendedFile> duplicateList;
 	
 	@Autowired
 	DuplicateController(DuplicateFinderService myService) {
 		this.myService = myService;
 	}
-	
-	@Autowired
-	private SimpMessagingTemplate template;
-	
-	private List<ExtendedFile> duplicateList;
-	private int jobNumber;
-	
+		
 	@GetMapping("/")
 	public String initial(Model model) {
 
@@ -69,56 +75,50 @@ public class DuplicateController {
 	public String searchFolder(Model model, @RequestParam(value = "searchFolder", required = false) String searchFolder) {
 			
 		try {
-            final Set<PathElement> uniqueElements = newConcurrentHashSet();
-            final Multimap<PathElement, PathElement> duplicates = synchronizedListMultimap(ArrayListMultimap.create());
-
-            List<String> args = new ArrayList<String>();
-            args.add(searchFolder);
-            
-            jobNumber ++;
-			DuplicateFinderJob duplicateFinderJob = new DuplicateFinderJob(args, "Job-" + jobNumber, uniqueElements, duplicates, template);
-			
-			// myService.doWork(duplicateFinderJob);
-            
-            
-            new DirectoryWalker().extractDuplicates(args, uniqueElements, duplicates);
-
-            if (new SystemPropertyGetter(environment).doOrganize()) {
-                pathOrganizer.organize(uniqueElements);
-            }
-
 			/*
-			 * final Path csvReport = new DuplicatesCsvReporter().report(duplicates);
-			 * LOGGER.info("CSV report created at [{}]", csvReport);
+			 * final Set<PathElement> uniqueElements = newConcurrentHashSet(); final
+			 * Multimap<PathElement, PathElement> duplicates =
+			 * synchronizedListMultimap(ArrayListMultimap.create());
 			 * 
-			 * final Path logReport = new
-			 * DuplicatesLogReporter(pathEscapeFunction).report(duplicates);
-			 * LOGGER.info("Log report created at [{}]", logReport);
-			 */            
+			 * List<String> args = new ArrayList<String>(); args.add(searchFolder);
+			 */
+            DuplicateJob duplicateJob = DuplicateJob.getInstance("finderJob", searchFolder, this.template);
             
-            List<ExtendedFile> duplicateFiles =  Utils.getDuplicates(duplicates);
-            this.duplicateList = duplicateFiles;
+            if (!duplicateJob.running().get()) myService.doWork(duplicateJob);
             
-            List<ExtendedFile> uniqueFiles =  Utils.getUniqueFiles(uniqueElements);
-            
-            String duplicateFileSize = BufferedAnalyzer.returnDuplicationSize(duplicates);
-        
-            GaugeResults gaugeResults = Utils.getGaugeResults();
+			/*
+			 * new DirectoryWalker().extractDuplicates(args, uniqueElements, duplicates,
+			 * template);
+			 * 
+			 * if (new SystemPropertyGetter(environment).doOrganize()) {
+			 * pathOrganizer.organize(uniqueElements); }
+			 * 
+			 * List<ExtendedFile> duplicateFiles = Utils.getDuplicates(duplicates); //
+			 * this.duplicateList = duplicateFiles;
+			 * 
+			 * List<ExtendedFile> uniqueFiles = Utils.getUniqueFiles(uniqueElements);
+			 * 
+			 * String duplicateFileSize =
+			 * BufferedAnalyzer.returnDuplicationSize(duplicates);
+			 */ 
+			 GaugeResults gaugeResults = Utils.getGaugeResults();
+			 
             
             model.addAttribute("searchFolder", searchFolder);
-    		model.addAttribute("foundFiles", uniqueFiles);
-    		model.addAttribute("duplicateFiles", duplicateFiles);
+    		// model.addAttribute("foundFiles", uniqueFiles);
+    		// model.addAttribute("duplicateFiles", duplicateFiles);
     		model.addAttribute("result", gaugeResults.getByteCount());
-    		model.addAttribute("duplicateFileSize", duplicateFileSize);
+    		// model.addAttribute("duplicateFileSize", duplicateFileSize);
     		model.addAttribute("duplicateCountBySize", gaugeResults.getSizeCount());
     		model.addAttribute("duplicateCountByMd5", gaugeResults.getMd5Count());
     		model.addAttribute("duplicateCountByByte", gaugeResults.getByteCount());
     		model.addAttribute("directoriesSearched", gaugeResults.getDirectoriesSearched());
     		model.addAttribute("filesSearched", gaugeResults.getFilesSearched());
     		
-    		Utils.resetCounters();
+    		// Utils.resetCounters();
     		
-            return "main";
+            // return "main";
+    		return "status";
             
         } catch (final OutOfMemoryError ignored) {
             LOGGER.error("Not enough memory, solutions are:");
@@ -127,7 +127,7 @@ public class DuplicateController {
             LOGGER.error("\t- reduce the level of parallelism (e.g. -Dfdupes.parallelism=1).");
 
             return "main";
-        } catch (IOException e) {
+        } catch (Exception e) {
 			LOGGER.error(e.getMessage());
 			return "main";
 		}
@@ -149,6 +149,18 @@ public class DuplicateController {
 		}
 			
 		return "search";
+	}
+	
+	@PostMapping("/updateSettings")
+	public String updateSettings(Model model) {
+		
+		List<String> newProperties = new ArrayList<String>();
+		
+		DuplicateProperties dp = DuplicateProperties.getInstance();
+		dp.updateSettings(newProperties);
+		
+		return "search";
+		
 	}
 	
 	

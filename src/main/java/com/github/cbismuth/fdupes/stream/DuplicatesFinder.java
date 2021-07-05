@@ -65,7 +65,10 @@ public class DuplicatesFinder {
     public void extractDuplicates(final Collection<PathElement> input,
                                   final Set<PathElement> uniqueElements,
                                   final Multimap<PathElement, PathElement> duplicates) {
-        Preconditions.checkNotNull(input, "null file metadata collection");
+        
+    	
+    	
+    	Preconditions.checkNotNull(input, "null file metadata collection");
 
         getMetricRegistry().remove(name("duplicates", "by-size", "count"));
         LOGGER.info("Pass 1/3 - compare file by size ...");

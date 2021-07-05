@@ -2,11 +2,11 @@ package com.hawkins.objects;
 
 public class GaugeResults {
 
-	public int sizeCount = 0;
-	public int md5Count = 0;
-	public int byteCount = 0;
-	public int directoriesSearched = 0;
-	public int filesSearched = 0;
+	private int sizeCount = 0;
+	private int md5Count = 0;
+	private int byteCount = 0;
+	private int directoriesSearched = 0;
+	private int filesSearched = 0;
 	
 	public int getSizeCount() {
 		return sizeCount;

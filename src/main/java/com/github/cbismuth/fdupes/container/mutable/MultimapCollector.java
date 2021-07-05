@@ -56,7 +56,7 @@ public final class MultimapCollector<T, K, V> implements Collector<T, Multimap<K
         return toMultimap(keyGetter, v -> v);
     }
 
-    public static <T, K, V> MultimapCollector<T, K, V> toMultimap(final Function<T, K> keyGetter, final Function<T, V> valueGetter) {
+    private static <T, K, V> MultimapCollector<T, K, V> toMultimap(final Function<T, K> keyGetter, final Function<T, V> valueGetter) {
         Preconditions.checkNotNull(keyGetter, "null multimap key getter");
         Preconditions.checkNotNull(valueGetter, "null multimap value getter");
 

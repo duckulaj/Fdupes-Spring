@@ -24,14 +24,12 @@ import java.util.zip.ZipOutputStream;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Gauge;
 import com.github.cbismuth.fdupes.container.immutable.PathElement;
 import com.google.common.collect.Multimap;
 import com.hawkins.file.ExtendedFile;
-import com.hawkins.messages.JobProgressMessage;
 import com.hawkins.objects.GaugeResults;
 import com.hawkins.properties.DuplicateProperties;
 
@@ -251,17 +249,5 @@ public class Utils {
 
 	}
 
-	public void sendProgress(String jobName, DuplicateJob dj, SimpMessagingTemplate template) {
-
-		JobProgressMessage temp = new JobProgressMessage(jobName);
-		
-		/*
-		 * temp.setProgress(de.getProgress());
-		 * temp.setState(FormatUtilities.getFormattedStatus(de));
-		 * temp.setDownloadSpeed(Math.round(de.getDownloadSpeed()));
-		 * temp.setOriginalFileName(de.getOriginalFileName());
-		 */
-
-		template.convertAndSend("/topic/status", temp);
-	}
+	
 }

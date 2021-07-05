@@ -39,7 +39,7 @@ import static java.util.Collections.unmodifiableCollection;
 @Component
 public final class FilenamePredicate implements DirectoryStream.Filter<Path> {
 
-    public static final Collection<String> FILENAME_STOP_WORDS = unmodifiableCollection(newArrayList(
+    private static final Collection<String> FILENAME_STOP_WORDS = unmodifiableCollection(newArrayList(
         // OS X
         ".ds_store",
 
