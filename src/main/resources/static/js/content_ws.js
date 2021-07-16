@@ -31,7 +31,7 @@ function connect(){
     stompClient.connect({}, function(frame){
     	stompClient.debug = function(str) {};
         stompClient.subscribe('/app/initial', function (messageOutput){
-            // console.log("INITIAL: "+messageOutput);
+            console.log("INITIAL: "+messageOutput);
             var progressList = $.parseJSON(messageOutput.body);
             $.each(progressList,function(index, element){
                 update(element);
@@ -39,7 +39,7 @@ function connect(){
         });
 
         stompClient.subscribe('/topic/status', function(messageOutput) {
-            // console.log("New Message: "+messageOutput);
+            console.log("New Message in connect function: "+messageOutput);
             var messageObject = $.parseJSON(messageOutput.body);
             update(messageObject);
         });
@@ -51,7 +51,12 @@ function connect(){
 
 function update(newMessage){
 
+	console.log("Message in update function: "+newMessage);
+
     var rows = $('#tableBody').find('#'+newMessage.jobName);
+    
+    console.log(rows.length);
+    
     if(rows.length === 0)
     {
         $('#tableBody').append('<tr id="'+newMessage.jobName+'">' +

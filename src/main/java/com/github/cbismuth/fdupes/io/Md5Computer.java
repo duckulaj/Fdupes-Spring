@@ -38,6 +38,7 @@ import com.codahale.metrics.Timer;
 import com.github.cbismuth.fdupes.container.immutable.PathElement;
 import com.google.common.base.Preconditions;
 import com.google.common.base.VerifyException;
+import com.hawkins.utils.HashingUtils;
 
 @Component
 public class Md5Computer {
@@ -59,11 +60,14 @@ public class Md5Computer {
 
     private String doIt(final PathElement element) {
         try {
-            return new ProcessExecutor().command(getNativeMd5Command(element))
+            /*return new ProcessExecutor().command(getNativeMd5Command(element))
                                         .readOutput(true)
                                         .execute()
                                         .outputString()
                                         .split("\\s")[1];
+            */
+            return HashingUtils.md5(element);
+            
         } catch (final Throwable e) {
         	throw new VerifyException(e);	
         }

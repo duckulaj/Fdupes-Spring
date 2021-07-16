@@ -216,6 +216,9 @@ public class Utils {
 				if (key.equalsIgnoreCase(Constants.DUPLICATE_BY_MD5_COUNT_STRING)) {
 					results.setMd5Count(Integer.valueOf(gauges.get(key).getValue().toString()));
 				}
+				if (key.equalsIgnoreCase(Constants.DUPLICATE_BY_SHA3256_COUNT_STRING)) {
+					results.setSha3256Count(Integer.valueOf(gauges.get(key).getValue().toString()));
+				}
 				if (key.equalsIgnoreCase(Constants.DUPLICATE_BY_BYTE_COUNT_STRING)) {
 					results.setByteCount(Integer.valueOf(gauges.get(key).getValue().toString()));
 				}

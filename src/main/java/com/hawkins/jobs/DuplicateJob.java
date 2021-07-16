@@ -47,12 +47,17 @@ public class DuplicateJob implements DetailedJob {
 		if (DuplicateJob.thisInstance == null)
 		{
 			DuplicateJob.thisInstance = new DuplicateJob(jobName,searchFolder, template);
+		} else {
+			
+			if (!thisInstance.getJobName().equalsIgnoreCase(jobName)) {
+				DuplicateJob.thisInstance = new DuplicateJob(jobName, searchFolder, template);
+			}
 		}
 
 		return DuplicateJob.thisInstance;
 	}
 
-	public void sendProgress(String jobName, SimpMessagingTemplate template) {
+	public void sendProgress() {
 
 		JobprogressMessage temp = new JobprogressMessage(this.jobName);
 		
@@ -64,11 +69,16 @@ public class DuplicateJob implements DetailedJob {
 		temp.setDuplicatesByByteCount(gaugeResults.getByteCount());
 		temp.setDuplicatesBySizeCount(gaugeResults.getSizeCount());
 		temp.setDuplicatesByMD5Count(gaugeResults.getMd5Count());
+		temp.setDuplicatesBySHA3256Count(gaugeResults.getSha3256Count());
 		temp.setDuplicatesByByteCount(gaugeResults.getByteCount());
 		temp.setDirectoryCount(gaugeResults.getDirectoriesSearched());
 		temp.setFileCount(gaugeResults.getFilesSearched());
-		temp.setDuplicatesTotalSize(this.duplicateFileSize);
 		
+		if (this.duplicateFileSize != null) 
+			temp.setDuplicatesTotalSize(this.duplicateFileSize);
+		else {
+			this.duplicateFileSize = "";
+		}
 
 		template.convertAndSend("/topic/status", temp);
 	}
@@ -77,6 +87,9 @@ public class DuplicateJob implements DetailedJob {
 	public void run() {
 		
 		running.set(true);
+		
+		if (this.getJobName().isEmpty()) this.jobName = "finderJob";
+				
 		
 		final Set<PathElement> uniqueElements = newConcurrentHashSet();
 	    final Multimap<PathElement, PathElement> duplicates = synchronizedListMultimap(ArrayListMultimap.create());
@@ -89,30 +102,29 @@ public class DuplicateJob implements DetailedJob {
         args.add(searchFolder);
 		
 		try {
-			new DirectoryWalker().extractDuplicates(args, uniqueElements, duplicates, this.template);
-			sendProgress(this.jobName, this.template);
+			new DirectoryWalker().extractDuplicates(args, uniqueElements, duplicates, this);
+			sendProgress();
 			/*
 			 * if (new SystemPropertyGetter(environment).doOrganize()) {
 			 * pathOrganizer.organize(uniqueElements); }
 			 */
 
             List<ExtendedFile> duplicateFiles =  Utils.getDuplicates(duplicates);
-            sendProgress(this.jobName, this.template);
+            sendProgress();
             // this.duplicateList = duplicateFiles;
             
             List<ExtendedFile> uniqueFiles =  Utils.getUniqueFiles(uniqueElements);
-            sendProgress(this.jobName, this.template);
+            sendProgress();
             
             this.duplicateFileSize = BufferedAnalyzer.returnDuplicationSize(duplicates);
-            sendProgress(this.jobName, this.template);
+            sendProgress();
             
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		running.set(false);
-		Utils.resetCounters();
+		reset();
 		
 	}
 
@@ -134,6 +146,13 @@ public class DuplicateJob implements DetailedJob {
 	
 	public AtomicBoolean running() {
 		return this.running;
+	}
+	
+	private void reset() {
+		running.set(false);
+		Utils.resetCounters();
+		this.jobName = "";
+		this.searchFolder = "";
 	}
 
 }

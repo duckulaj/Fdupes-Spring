@@ -4,6 +4,7 @@ public class GaugeResults {
 
 	private int sizeCount = 0;
 	private int md5Count = 0;
+	private int sha3256Count = 0;
 	private int byteCount = 0;
 	private int directoriesSearched = 0;
 	private int filesSearched = 0;
@@ -19,6 +20,12 @@ public class GaugeResults {
 	}
 	public void setMd5Count(int md5Count) {
 		this.md5Count = md5Count;
+	}
+	public int getSha3256Count() {
+		return sha3256Count;
+	}
+	public void setSha3256Count(int sha3256Count) {
+		this.sha3256Count = sha3256Count;
 	}
 	public int getByteCount() {
 		return byteCount;

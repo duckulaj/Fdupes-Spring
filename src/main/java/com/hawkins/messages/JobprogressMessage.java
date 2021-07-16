@@ -7,6 +7,7 @@ public class JobprogressMessage {
     private int fileCount;
     private int duplicatesBySizeCount;
     private int duplicatesByMD5Count;
+    private int duplicatesBySHA3256Count;
     private int duplicatesByByteCount;
     private String duplicatesTotalSize;
     
@@ -58,6 +59,14 @@ public class JobprogressMessage {
 
 	public void setDuplicatesByMD5Count(int duplicatesByMD5Count) {
 		this.duplicatesByMD5Count = duplicatesByMD5Count;
+	}
+
+	public int getDuplicatesBySHA3256Count() {
+		return duplicatesBySHA3256Count;
+	}
+
+	public void setDuplicatesBySHA3256Count(int duplicatesBySHA3256Count) {
+		this.duplicatesBySHA3256Count = duplicatesBySHA3256Count;
 	}
 
 	public int getDuplicatesByByteCount() {

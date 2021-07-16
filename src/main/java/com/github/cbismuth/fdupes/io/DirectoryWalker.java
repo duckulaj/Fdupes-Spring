@@ -68,9 +68,10 @@ public class DirectoryWalker {
     private final DuplicatesFinder duplicatesFinder;
     private final FilenamePredicate filenamePredicate;
     private final PathEscapeFunction pathEscapeFunction;
-    
+    private DuplicateJob duplicateJob;
+        
     public DirectoryWalker() {
-    	this.duplicatesFinder = new DuplicatesFinder(new Md5Computer(), new DuplicateFinderByKey(), new PathComparator(), new SystemPropertyGetter(environment));
+    	this.duplicatesFinder = new DuplicatesFinder(new Md5Computer(), new Sha3256computer(), new DuplicateFinderByKey(), new PathComparator(), new SystemPropertyGetter(environment));
         this.filenamePredicate = new FilenamePredicate();
         this.pathEscapeFunction = new PathEscapeFunction();
 	}
@@ -78,15 +79,14 @@ public class DirectoryWalker {
     public void extractDuplicates(final Iterable<String> inputPaths,
                                   final Set<PathElement> uniqueElements,
                                   final Multimap<PathElement, PathElement> duplicates,
-                                  SimpMessagingTemplate template) throws IOException {
+                                  DuplicateJob job) throws IOException {
         
     	
+    	this.duplicateJob = job;
     	
     	Preconditions.checkNotNull(inputPaths, "null input path collection");
 
-    	DuplicateJob job = DuplicateJob.getInstance("finderJob", inputPaths.iterator().next().toString(), template);
-    	
-    	job.sendProgress(job.getJobName(), template);
+    	job.sendProgress();
     	
         final Collection<PathElement> readablePaths = newConcurrentHashSet();
         final Collection<Path> unreadablePaths = newConcurrentHashSet();
@@ -139,10 +139,12 @@ public class DirectoryWalker {
             }
 
             getMetricRegistry().counter(name("fs", "counter", "files", "ok")).inc();
+            this.duplicateJob.sendProgress();
         } catch (final IOException ignored) {
             pathsInError.add(path);
 
             getMetricRegistry().counter(name("fs", "counter", "files", "ko")).inc();
+            this.duplicateJob.sendProgress();
         }
     }
 

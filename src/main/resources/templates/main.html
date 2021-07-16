@@ -54,6 +54,10 @@
 										<td width="10%" th:text="${duplicateCountByMd5}"></td>
 									</tr>
 									<tr>
+										<td width="20%">Duplicates found by SHA3-256 hash</td>
+										<td width="10%" th:text="${duplicateCountBySHA3256}"></td>
+									</tr>
+									<tr>
 										<td width="20%">Duplicates found by byte comparison</td>
 										<td width="10%" th:text="${duplicateCountByByte}"></td>
 									<tr>
@@ -77,7 +81,7 @@
 				<div class="card-header" id="headingFiles">
 					<h2 class="mb-0">
 						<button type="button" class="btn btn-link" data-toggle="collapse"
-							data-target="#collapseFiles">Files Searched</button>
+							data-target="#collapseFiles">Unique Files</button>
 					</h2>
 				</div>
 				<div id="collapseFiles" class="collapse" aria-labelledby="headingFiles"

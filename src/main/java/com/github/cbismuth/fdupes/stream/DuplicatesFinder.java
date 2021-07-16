@@ -24,70 +24,82 @@
 
 package com.github.cbismuth.fdupes.stream;
 
+import static com.codahale.metrics.MetricRegistry.name;
+import static com.github.cbismuth.fdupes.metrics.MetricRegistrySingleton.getMetricRegistry;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import java.util.Collection;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.springframework.stereotype.Component;
+
 import com.codahale.metrics.Gauge;
 import com.github.cbismuth.fdupes.cli.SystemPropertyGetter;
 import com.github.cbismuth.fdupes.collect.PathComparator;
 import com.github.cbismuth.fdupes.container.immutable.PathElement;
 import com.github.cbismuth.fdupes.io.BufferedAnalyzer;
 import com.github.cbismuth.fdupes.io.Md5Computer;
+import com.github.cbismuth.fdupes.io.Sha3256computer;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Multimap;
-import org.slf4j.Logger;
-import org.springframework.stereotype.Component;
-
-import java.util.Collection;
-import java.util.Set;
-
-import static com.codahale.metrics.MetricRegistry.name;
-import static com.github.cbismuth.fdupes.metrics.MetricRegistrySingleton.getMetricRegistry;
-import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
 public class DuplicatesFinder {
 
-    private static final Logger LOGGER = getLogger(DuplicatesFinder.class);
+	private static final Logger LOGGER = getLogger(DuplicatesFinder.class);
 
-    private final Md5Computer md5Computer;
-    private final DuplicateFinderByKey duplicateFinderByKey;
-    private final PathComparator pathComparator;
-    private final SystemPropertyGetter systemPropertyGetter;
+	private final Md5Computer md5Computer;
+	private final Sha3256computer sha3256Computer;
+	private final DuplicateFinderByKey duplicateFinderByKey;
+	private final PathComparator pathComparator;
+	private final SystemPropertyGetter systemPropertyGetter;
 
-    public DuplicatesFinder(final Md5Computer md5Computer,
-                            final DuplicateFinderByKey duplicateFinderByKey,
-                            final PathComparator pathComparator,
-                            final SystemPropertyGetter systemPropertyGetter) {
-        this.duplicateFinderByKey = duplicateFinderByKey;
-        this.md5Computer = md5Computer;
-        this.pathComparator = pathComparator;
-        this.systemPropertyGetter = systemPropertyGetter;
-    }
+	public DuplicatesFinder(final Md5Computer md5Computer,
+			final Sha3256computer sha3256computer,
+			final DuplicateFinderByKey duplicateFinderByKey,
+			final PathComparator pathComparator,
+			final SystemPropertyGetter systemPropertyGetter) {
+		this.duplicateFinderByKey = duplicateFinderByKey;
+		this.md5Computer = md5Computer;
+		this.sha3256Computer = sha3256computer;
+		this.pathComparator = pathComparator;
+		this.systemPropertyGetter = systemPropertyGetter;
+	}
 
-    public void extractDuplicates(final Collection<PathElement> input,
-                                  final Set<PathElement> uniqueElements,
-                                  final Multimap<PathElement, PathElement> duplicates) {
-        
-    	
-    	
-    	Preconditions.checkNotNull(input, "null file metadata collection");
+	public void extractDuplicates(final Collection<PathElement> input,
+			final Set<PathElement> uniqueElements,
+			final Multimap<PathElement, PathElement> duplicates) {
 
-        getMetricRegistry().remove(name("duplicates", "by-size", "count"));
-        LOGGER.info("Pass 1/3 - compare file by size ...");
-        final Collection<PathElement> duplicatesBySize = duplicateFinderByKey.getDuplicates(input, PathElement::size, uniqueElements);
-        getMetricRegistry().register(name("duplicates", "by-size", "count"), (Gauge<Integer>) duplicatesBySize::size);
-        LOGGER.info("Pass 1/3 - compare file by size completed! - {} duplicate(s) found", duplicatesBySize.size());
 
-        getMetricRegistry().remove(name("duplicates", "by-md5", "count"));
-        LOGGER.info("Pass 2/3 - compare file by MD5 ...");
-        final Collection<PathElement> duplicatesByMd5 = duplicateFinderByKey.getDuplicates(duplicatesBySize, md5Computer::compute, uniqueElements);
-        getMetricRegistry().register(name("duplicates", "by-md5", "count"), (Gauge<Integer>) duplicatesByMd5::size);
-        LOGGER.info("Pass 2/3 - compare file by MD5 completed! - {} duplicate(s) found", duplicatesByMd5.size());
 
-        getMetricRegistry().remove(name("duplicates", "by-bytes", "count"));
-        LOGGER.info("Pass 3/3 - compare file byte-by-byte ...");
-        final BufferedAnalyzer analyzer = new BufferedAnalyzer(pathComparator, systemPropertyGetter);
-        analyzer.analyze(duplicatesByMd5, uniqueElements, duplicates);
-        getMetricRegistry().register(name("duplicates", "by-bytes", "count"), (Gauge<Integer>) duplicates::size);
-        LOGGER.info("Pass 3/3 - compare file byte-by-byte completed! - {} duplicate(s) found", duplicates.size());
-    }
+		Preconditions.checkNotNull(input, "null file metadata collection");
+
+		getMetricRegistry().remove(name("duplicates", "by-size", "count"));
+		LOGGER.info("Pass 1/3 - compare file by size ...");
+		final Collection<PathElement> duplicatesBySize = duplicateFinderByKey.getDuplicates(input, PathElement::size, uniqueElements);
+		getMetricRegistry().register(name("duplicates", "by-size", "count"), (Gauge<Integer>) duplicatesBySize::size);
+		LOGGER.info("Pass 1/3 - compare file by size completed! - {} duplicate(s) found", duplicatesBySize.size());
+
+
+		getMetricRegistry().remove(name("duplicates", "by-md5", "count"));
+		LOGGER.info("Pass 2/3 - compare file by MD5 ...");
+		final Collection<PathElement> duplicatesByMd5 = duplicateFinderByKey.getDuplicates(duplicatesBySize, md5Computer::compute, uniqueElements); 
+		getMetricRegistry().register(name("duplicates", "by-md5", "count"), (Gauge<Integer>) duplicatesByMd5::size); LOGGER.
+		info("Pass 2/3 - compare file by MD5 completed! - {} duplicate(s) found", duplicatesByMd5.size());
+
+		getMetricRegistry().remove(name("duplicates", "by-sha3-256", "count"));
+		LOGGER.info("Pass 2/3 - compare file by SHA3-256 ..."); final
+		Collection<PathElement> duplicatesBySha3256 = duplicateFinderByKey.getDuplicates(duplicatesBySize, sha3256Computer::compute, uniqueElements);
+		getMetricRegistry().register(name("duplicates", "by-sha3-256", "count"), (Gauge<Integer>) duplicatesBySha3256::size); LOGGER.info("Pass 2/3 - compare file by SHA3-256 completed! - {} duplicate(s) found", duplicatesBySha3256.size());
+
+		getMetricRegistry().remove(name("duplicates", "by-bytes", "count"));
+		LOGGER.info("Pass 3/3 - compare file byte-by-byte ...");
+		final BufferedAnalyzer analyzer = new BufferedAnalyzer(pathComparator, systemPropertyGetter);
+		// analyzer.analyze(duplicatesByMd5, uniqueElements, duplicates);
+		analyzer.analyze(duplicatesBySha3256, uniqueElements, duplicates);
+		getMetricRegistry().register(name("duplicates", "by-bytes", "count"), (Gauge<Integer>) duplicates::size);
+		LOGGER.info("Pass 3/3 - compare file byte-by-byte completed! - {} duplicate(s) found", duplicates.size());
+	}
 
 }
