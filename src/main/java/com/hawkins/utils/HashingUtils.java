@@ -1,6 +1,5 @@
 package com.hawkins.utils;
 
-import java.io.File;
 import java.io.IOException;
 
 import com.github.cbismuth.fdupes.container.immutable.PathElement;

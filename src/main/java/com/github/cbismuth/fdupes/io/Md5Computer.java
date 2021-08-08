@@ -26,13 +26,11 @@ package com.github.cbismuth.fdupes.io;
 
 import static com.codahale.metrics.MetricRegistry.name;
 import static com.github.cbismuth.fdupes.metrics.MetricRegistrySingleton.getMetricRegistry;
-import static com.google.common.collect.Lists.newArrayList;
 import static java.util.UUID.randomUUID;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
-import org.zeroturnaround.exec.ProcessExecutor;
 
 import com.codahale.metrics.Timer;
 import com.github.cbismuth.fdupes.container.immutable.PathElement;
@@ -73,8 +71,9 @@ public class Md5Computer {
         }
     }
 
-    private Iterable<String> getNativeMd5Command(final PathElement element) {
-        return newArrayList("openssl", "md5", element.getPath().toString());
-    }
+	/*
+	 * private Iterable<String> getNativeMd5Command(final PathElement element) {
+	 * return newArrayList("openssl", "md5", element.getPath().toString()); }
+	 */
 
 }

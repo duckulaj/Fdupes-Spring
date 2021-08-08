@@ -41,7 +41,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
 import com.codahale.metrics.Timer;
@@ -55,7 +54,6 @@ import com.github.cbismuth.fdupes.stream.DuplicatesFinder;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Multimap;
 import com.hawkins.jobs.DuplicateJob;
-import com.hawkins.messages.JobprogressMessage;
 
 @Component
 public class DirectoryWalker {

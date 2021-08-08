@@ -4,7 +4,6 @@ import static com.google.common.collect.Multimaps.synchronizedListMultimap;
 import static com.google.common.collect.Sets.newConcurrentHashSet;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;

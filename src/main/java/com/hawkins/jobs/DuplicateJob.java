@@ -11,16 +11,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
-import com.github.cbismuth.fdupes.cli.SystemPropertyGetter;
 import com.github.cbismuth.fdupes.container.immutable.PathElement;
 import com.github.cbismuth.fdupes.io.BufferedAnalyzer;
 import com.github.cbismuth.fdupes.io.DirectoryWalker;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import com.hawkins.file.ExtendedFile;
 import com.hawkins.messages.JobprogressMessage;
 import com.hawkins.objects.GaugeResults;
-import com.hawkins.properties.DuplicateProperties;
 import com.hawkins.utils.Utils;
 
 public class DuplicateJob implements DetailedJob {
@@ -94,7 +91,7 @@ public class DuplicateJob implements DetailedJob {
 		final Set<PathElement> uniqueElements = newConcurrentHashSet();
 	    final Multimap<PathElement, PathElement> duplicates = synchronizedListMultimap(ArrayListMultimap.create());
 	    
-		DuplicateJob job = new DuplicateJob(this.jobName, this.searchFolder, this.template);
+		// DuplicateJob job = new DuplicateJob(this.jobName, this.searchFolder, this.template);
 		
 		
 
@@ -109,11 +106,11 @@ public class DuplicateJob implements DetailedJob {
 			 * pathOrganizer.organize(uniqueElements); }
 			 */
 
-            List<ExtendedFile> duplicateFiles =  Utils.getDuplicates(duplicates);
+            // List<ExtendedFile> duplicateFiles =  Utils.getDuplicates(duplicates);
             sendProgress();
             // this.duplicateList = duplicateFiles;
             
-            List<ExtendedFile> uniqueFiles =  Utils.getUniqueFiles(uniqueElements);
+            // List<ExtendedFile> uniqueFiles =  Utils.getUniqueFiles(uniqueElements);
             sendProgress();
             
             this.duplicateFileSize = BufferedAnalyzer.returnDuplicationSize(duplicates);
