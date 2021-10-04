@@ -6,12 +6,17 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.Environment;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Controller;
@@ -33,6 +38,7 @@ import com.hawkins.objects.GaugeResults;
 import com.hawkins.properties.DuplicateProperties;
 import com.hawkins.service.DuplicateFinderService;
 import com.hawkins.utils.Constants;
+import com.hawkins.utils.PagingUtils;
 import com.hawkins.utils.Utils;
 
 @Controller
@@ -57,6 +63,7 @@ public class DuplicateController {
 	private static final Logger LOGGER = getLogger(DuplicateController.class);
 
 	private List<ExtendedFile> duplicateList;
+	private Page<ExtendedFile> duplicateListPage;
 
 	private boolean useMessaging = false;
 
@@ -74,9 +81,12 @@ public class DuplicateController {
 	}
 
 	@GetMapping("/searchFolder")
-	public String searchFolder(Model model, @RequestParam(value = "searchFolder", required = false) String searchFolder) {
+	public String searchFolder(Model model, @RequestParam(value = "searchFolder", required = false) String searchFolder, @RequestParam("page") Optional<Integer> page, @RequestParam("size") Optional<Integer> size ) {
 
-		String activeTemplate = Constants.TEMPLATE_MAIN;
+		final int currentPage = page.orElse(1);
+	    final int pageSize = size.orElse(5);
+
+	    String activeTemplate = Constants.TEMPLATE_MAIN;
 
 		try {
 
@@ -97,7 +107,7 @@ public class DuplicateController {
 				activeTemplate = Constants.TEMPLATE_STATUS;
 				
 
-			} else {
+					} else {
 
 				new DirectoryWalker().extractDuplicates(args, uniqueElements, duplicates,
 						duplicateJob);
@@ -107,7 +117,16 @@ public class DuplicateController {
 
 				List<ExtendedFile> duplicateFiles = Utils.getDuplicates(duplicates); //
 				this.duplicateList = duplicateFiles;
+				this.duplicateListPage = PagingUtils.findPaginated(PageRequest.of(currentPage - 1, pageSize), duplicateFiles);
 
+				int totalPages = duplicateListPage.getTotalPages();
+		        if (totalPages > 0) {
+		            List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages)
+		                .boxed()
+		                .collect(Collectors.toList());
+		            model.addAttribute("pageNumbers", pageNumbers);
+		        }
+		        
 				List<ExtendedFile> uniqueFiles = Utils.getUniqueFiles(uniqueElements);
 
 				String duplicateFileSize =
@@ -119,6 +138,7 @@ public class DuplicateController {
 				model.addAttribute("searchFolder", searchFolder);
 				model.addAttribute("foundFiles", uniqueFiles);
 				model.addAttribute("duplicateFiles", duplicateFiles);
+				model.addAttribute("duplicateListPage", duplicateListPage);
 				model.addAttribute("result", gaugeResults.getByteCount());
 				model.addAttribute("duplicateFileSize", duplicateFileSize);
 				model.addAttribute("duplicateCountBySize", gaugeResults.getSizeCount());
