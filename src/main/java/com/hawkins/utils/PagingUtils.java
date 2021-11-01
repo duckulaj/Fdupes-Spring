@@ -36,7 +36,7 @@ public class PagingUtils {
         return filePage;
     }
 	
-	public Paged<ExtendedFile> getPage(int pageNumber, int size,  List<ExtendedFile> duplicates) {
+	public static Paged<ExtendedFile> getPage(int pageNumber, int size,  List<ExtendedFile> duplicates) {
 		 List<ExtendedFile> list;
 		 int startItem = pageNumber * size;
 		 

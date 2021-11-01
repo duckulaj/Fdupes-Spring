@@ -35,6 +35,7 @@ import com.google.common.collect.Multimap;
 import com.hawkins.file.ExtendedFile;
 import com.hawkins.jobs.DuplicateJob;
 import com.hawkins.objects.GaugeResults;
+import com.hawkins.paging.Paged;
 import com.hawkins.properties.DuplicateProperties;
 import com.hawkins.service.DuplicateFinderService;
 import com.hawkins.utils.Constants;
@@ -64,6 +65,7 @@ public class DuplicateController {
 
 	private List<ExtendedFile> duplicateList;
 	private Page<ExtendedFile> duplicateListPage;
+	private Paged<ExtendedFile> duplicateListPageNew;
 
 	private boolean useMessaging = false;
 
@@ -118,7 +120,8 @@ public class DuplicateController {
 				List<ExtendedFile> duplicateFiles = Utils.getDuplicates(duplicates); //
 				this.duplicateList = duplicateFiles;
 				this.duplicateListPage = PagingUtils.findPaginated(PageRequest.of(currentPage - 1, pageSize), duplicateFiles);
-
+				this.duplicateListPageNew = PagingUtils.getPage(currentPage, pageSize, duplicateFiles);
+				
 				int totalPages = duplicateListPage.getTotalPages();
 		        if (totalPages > 0) {
 		            List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages)
@@ -139,6 +142,7 @@ public class DuplicateController {
 				model.addAttribute("foundFiles", uniqueFiles);
 				model.addAttribute("duplicateFiles", duplicateFiles);
 				model.addAttribute("duplicateListPage", duplicateListPage);
+				model.addAttribute("posts", duplicateListPageNew);
 				model.addAttribute("result", gaugeResults.getByteCount());
 				model.addAttribute("duplicateFileSize", duplicateFileSize);
 				model.addAttribute("duplicateCountBySize", gaugeResults.getSizeCount());
@@ -200,7 +204,28 @@ public class DuplicateController {
 		return "search";
 
 	}
+	
+	@GetMapping("/gotoPage")
+	public String gotoPage(Model model, @RequestParam("page") Optional<Integer> page, @RequestParam("size") Optional<Integer> size) {
+		
+		final int currentPage = page.orElse(1);
+	    final int pageSize = size.orElse(5);
 
+	    this.duplicateListPage = PagingUtils.findPaginated(PageRequest.of(currentPage - 1, pageSize), this.duplicateList);
+		this.duplicateListPageNew = PagingUtils.getPage(currentPage, pageSize, this.duplicateList);
 
+		model.addAttribute("posts", this.duplicateListPageNew);
+		model.addAttribute("duplicateListPage", duplicateListPage);
+		
+		return Constants.TEMPLATE_MAIN;
+		
+	}
+
+	private Model populateModel (Model model, String searchFolder) {
+		
+		model.addAttribute("searchFolder", searchFolder);
+		
+		return model;
+	}
 
 }	
