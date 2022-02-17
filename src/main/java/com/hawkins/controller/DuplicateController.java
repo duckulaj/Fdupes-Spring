@@ -22,6 +22,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -37,6 +38,7 @@ import com.hawkins.jobs.DuplicateJob;
 import com.hawkins.objects.GaugeResults;
 import com.hawkins.paging.Paged;
 import com.hawkins.properties.DuplicateProperties;
+import com.hawkins.properties.ModelAttributes;
 import com.hawkins.service.DuplicateFinderService;
 import com.hawkins.utils.Constants;
 import com.hawkins.utils.PagingUtils;
@@ -86,9 +88,11 @@ public class DuplicateController {
 	public String searchFolder(Model model, @RequestParam(value = "searchFolder", required = false) String searchFolder, @RequestParam("page") Optional<Integer> page, @RequestParam("size") Optional<Integer> size ) {
 
 		final int currentPage = page.orElse(1);
-	    final int pageSize = size.orElse(5);
+		final int pageSize = size.orElse(5);
+		
+		ModelAttributes modelAttributes = ModelAttributes.getInstance();
 
-	    String activeTemplate = Constants.TEMPLATE_MAIN;
+		String activeTemplate = Constants.TEMPLATE_MAIN;
 
 		try {
 
@@ -107,9 +111,9 @@ public class DuplicateController {
 					myService.doWork(duplicateJob);
 				}
 				activeTemplate = Constants.TEMPLATE_STATUS;
-				
 
-					} else {
+
+			} else {
 
 				new DirectoryWalker().extractDuplicates(args, uniqueElements, duplicates,
 						duplicateJob);
@@ -121,15 +125,16 @@ public class DuplicateController {
 				this.duplicateList = duplicateFiles;
 				this.duplicateListPage = PagingUtils.findPaginated(PageRequest.of(currentPage - 1, pageSize), duplicateFiles);
 				this.duplicateListPageNew = PagingUtils.getPage(currentPage, pageSize, duplicateFiles);
-				
+
 				int totalPages = duplicateListPage.getTotalPages();
-		        if (totalPages > 0) {
-		            List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages)
-		                .boxed()
-		                .collect(Collectors.toList());
-		            model.addAttribute("pageNumbers", pageNumbers);
-		        }
-		        
+				if (totalPages > 0) {
+					List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages)
+							.boxed()
+							.collect(Collectors.toList());
+					// model.addAttribute("pageNumbers", pageNumbers);
+					modelAttributes.setPageNumbers(pageNumbers);
+				}
+
 				List<ExtendedFile> uniqueFiles = Utils.getUniqueFiles(uniqueElements);
 
 				String duplicateFileSize =
@@ -138,19 +143,21 @@ public class DuplicateController {
 				GaugeResults gaugeResults = Utils.getGaugeResults();
 
 
-				model.addAttribute("searchFolder", searchFolder);
-				model.addAttribute("foundFiles", uniqueFiles);
-				model.addAttribute("duplicateFiles", duplicateFiles);
-				model.addAttribute("duplicateListPage", duplicateListPage);
-				model.addAttribute("posts", duplicateListPageNew);
-				model.addAttribute("result", gaugeResults.getByteCount());
-				model.addAttribute("duplicateFileSize", duplicateFileSize);
-				model.addAttribute("duplicateCountBySize", gaugeResults.getSizeCount());
-				model.addAttribute("duplicateCountByMd5", gaugeResults.getMd5Count());
-				model.addAttribute("duplicateCountBySHA3256", gaugeResults.getSha3256Count());
-				model.addAttribute("duplicateCountByByte", gaugeResults.getByteCount());
-				model.addAttribute("directoriesSearched", gaugeResults.getDirectoriesSearched());
-				model.addAttribute("filesSearched", gaugeResults.getFilesSearched());
+				modelAttributes.setSearchFolder(searchFolder);
+				// modelAttributes.setUniqueFiles(uniqueFiles);
+				// modelAttributes.setDuplicateFiles(duplicateFiles);
+				modelAttributes.setDuplicateListPage(duplicateListPage);
+				modelAttributes.setDuplicateListPageNew(duplicateListPageNew);
+				modelAttributes.setByteCount(gaugeResults.getByteCount());
+				modelAttributes.setDuplicateFileSize(duplicateFileSize);
+				modelAttributes.setDuplicateCountBySize(gaugeResults.getSizeCount());
+				modelAttributes.setDuplicateCountByMd5(gaugeResults.getMd5Count());
+				modelAttributes.setDuplicateCountBySHA3256(gaugeResults.getSha3256Count());
+				modelAttributes.setDuplicateCountByByte(gaugeResults.getByteCount());
+				modelAttributes.setDirectoriesSearched(gaugeResults.getDirectoriesSearched());
+				modelAttributes.setFilesSearched(gaugeResults.getFilesSearched());
+				
+				model = populateModel(model, modelAttributes);
 
 				Utils.resetCounters();
 
@@ -204,27 +211,43 @@ public class DuplicateController {
 		return "search";
 
 	}
-	
+
 	@GetMapping("/gotoPage")
 	public String gotoPage(Model model, @RequestParam("page") Optional<Integer> page, @RequestParam("size") Optional<Integer> size) {
+
+		ModelAttributes modelAttributes = ModelAttributes.getInstance();
 		
 		final int currentPage = page.orElse(1);
-	    final int pageSize = size.orElse(5);
+		final int pageSize = size.orElse(5);
 
-	    this.duplicateListPage = PagingUtils.findPaginated(PageRequest.of(currentPage - 1, pageSize), this.duplicateList);
+		this.duplicateListPage = PagingUtils.findPaginated(PageRequest.of(currentPage - 1, pageSize), this.duplicateList);
 		this.duplicateListPageNew = PagingUtils.getPage(currentPage, pageSize, this.duplicateList);
 
-		model.addAttribute("posts", this.duplicateListPageNew);
-		model.addAttribute("duplicateListPage", duplicateListPage);
+		modelAttributes.setDuplicateListPageNew(duplicateListPageNew);
+		modelAttributes.setDuplicateListPage(duplicateListPage);
 		
+		model = populateModel(model, modelAttributes);
+
 		return Constants.TEMPLATE_MAIN;
-		
+
 	}
 
-	private Model populateModel (Model model, String searchFolder) {
-		
-		model.addAttribute("searchFolder", searchFolder);
-		
+	private Model populateModel (Model model, ModelAttributes modelAttributes) {
+
+		model.addAttribute("searchFolder", modelAttributes.getSearchFolder());
+		model.addAttribute("foundFiles", modelAttributes.getUniqueFiles());
+		model.addAttribute("duplicateFiles", modelAttributes.getDuplicateFiles());
+		model.addAttribute("duplicateListPage", modelAttributes.getDuplicateListPage());
+		model.addAttribute("posts", modelAttributes.getDuplicateListPageNew());
+		model.addAttribute("result", modelAttributes.getByteCount());
+		model.addAttribute("duplicateFileSize", modelAttributes.getDuplicateFileSize());
+		model.addAttribute("duplicateCountBySize", modelAttributes.getDuplicateCountBySize());
+		model.addAttribute("duplicateCountByMd5", modelAttributes.getDuplicateCountByMd5());
+		model.addAttribute("duplicateCountBySHA3256", modelAttributes.getDuplicateCountBySHA3256());
+		model.addAttribute("duplicateCountByByte", modelAttributes.getDuplicateCountByByte());
+		model.addAttribute("directoriesSearched", modelAttributes.getDirectoriesSearched());
+		model.addAttribute("filesSearched", modelAttributes.getFilesSearched());
+
 		return model;
 	}
 
