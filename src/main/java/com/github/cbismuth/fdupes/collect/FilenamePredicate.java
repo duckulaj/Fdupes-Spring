@@ -24,21 +24,29 @@
 
 package com.github.cbismuth.fdupes.collect;
 
+import com.github.cbismuth.fdupes.io.DirectoryWalker;
 import com.google.common.base.Preconditions;
+import com.hawkins.utils.SystemUtils;
+
+import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.unmodifiableCollection;
+import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
 public final class FilenamePredicate implements DirectoryStream.Filter<Path> {
 
+	private static final Logger LOGGER = getLogger(FilenamePredicate.class);
+	
     private static final Collection<String> FILENAME_STOP_WORDS = unmodifiableCollection(newArrayList(
         // OS X
         ".ds_store",
@@ -58,6 +66,10 @@ public final class FilenamePredicate implements DirectoryStream.Filter<Path> {
         "cloudsync_encrypt.info",
         "#recycle"
     ));
+    
+    private static final String seperator = System.getProperty("file.separator");
+    
+    private static final List<String> networkDrives = SystemUtils.getInstance().getNetworkDrives();
 
     @Override
     public boolean accept(final Path path) {
@@ -67,6 +79,7 @@ public final class FilenamePredicate implements DirectoryStream.Filter<Path> {
                                            && Files.isReadable(path)
                                            && !Files.isSymbolicLink(path)
                                            && !isHiddenFile(path.toString())
+                                           && !isNetworkDrive(path.toString())
                                            && !containsForbiddenSubstring(path, FILENAME_STOP_WORDS);
 
         final boolean isAllowedFile = !Files.isDirectory(path)
@@ -79,7 +92,8 @@ public final class FilenamePredicate implements DirectoryStream.Filter<Path> {
     }
 
     private boolean isHiddenFile(final String name) {
-        return name.startsWith(".");
+        // return name.startsWith(".");
+        return name.contains(seperator + ".");
     }
 
     private boolean containsForbiddenSubstring(final Path path, final Collection<String> exclusionList) {
@@ -95,6 +109,24 @@ public final class FilenamePredicate implements DirectoryStream.Filter<Path> {
         }
 
         return false;
+    }
+    
+    private boolean isNetworkDrive(final String name) {
+    	
+    	
+    	
+    	boolean[] networkDriveDetected = { false };
+    	
+    	
+    	
+    	networkDrives.forEach(networkDrive -> {
+    		if (name.contains(networkDrive)) {
+    			
+    			networkDriveDetected[0] = true;
+    		}
+    	});
+    	
+    	return networkDriveDetected[0];
     }
 
 }

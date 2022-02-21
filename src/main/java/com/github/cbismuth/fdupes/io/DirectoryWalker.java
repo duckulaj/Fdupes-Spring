@@ -36,6 +36,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -54,96 +55,106 @@ import com.github.cbismuth.fdupes.stream.DuplicatesFinder;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Multimap;
 import com.hawkins.jobs.DuplicateJob;
+import com.hawkins.utils.SystemUtils;
 
 @Component
 public class DirectoryWalker {
 
-    private static final Logger LOGGER = getLogger(DirectoryWalker.class);
+	private static final Logger LOGGER = getLogger(DirectoryWalker.class);
 
-    @Autowired
-    private Environment environment;
-    
-    private final DuplicatesFinder duplicatesFinder;
-    private final FilenamePredicate filenamePredicate;
-    private final PathEscapeFunction pathEscapeFunction;
-    private DuplicateJob duplicateJob;
-        
-    public DirectoryWalker() {
-    	this.duplicatesFinder = new DuplicatesFinder(new Md5Computer(), new Sha3256computer(), new DuplicateFinderByKey(), new PathComparator(), new SystemPropertyGetter(environment));
-        this.filenamePredicate = new FilenamePredicate();
-        this.pathEscapeFunction = new PathEscapeFunction();
+	@Autowired
+	private Environment environment;
+
+	private final DuplicatesFinder duplicatesFinder;
+	private final FilenamePredicate filenamePredicate;
+	private final PathEscapeFunction pathEscapeFunction;
+	private DuplicateJob duplicateJob;
+	private boolean okToContinue;
+
+	public DirectoryWalker() {
+		this.duplicatesFinder = new DuplicatesFinder(new Md5Computer(), new Sha3256computer(), new DuplicateFinderByKey(), new PathComparator(), new SystemPropertyGetter(environment));
+		this.filenamePredicate = new FilenamePredicate();
+		this.pathEscapeFunction = new PathEscapeFunction();
 	}
 
-    public void extractDuplicates(final Iterable<String> inputPaths,
-                                  final Set<PathElement> uniqueElements,
-                                  final Multimap<PathElement, PathElement> duplicates,
-                                  DuplicateJob job) throws IOException {
-        
-    	
-    	this.duplicateJob = job;
-    	
-    	Preconditions.checkNotNull(inputPaths, "null input path collection");
+	public void extractDuplicates(final Iterable<String> inputPaths,
+			final Set<PathElement> uniqueElements,
+			final Multimap<PathElement, PathElement> duplicates,
+			DuplicateJob job) throws IOException {
 
-    	job.sendProgress();
-    	
-        final Collection<PathElement> readablePaths = newConcurrentHashSet();
-        final Collection<Path> unreadablePaths = newConcurrentHashSet();
 
-        readablePaths.clear();
+		this.duplicateJob = job;
 
-        inputPaths.forEach(rootPath -> {
-            final Path path = Paths.get(rootPath);
+		Preconditions.checkNotNull(inputPaths, "null input path collection");
 
-            if (filenamePredicate.accept(path)) {
-                if (Files.isDirectory(path)) {
-                    handleDirectory(path, readablePaths, unreadablePaths);
-                } else if (Files.isRegularFile(path)) {
-                    handleRegularFile(path, readablePaths, unreadablePaths);
-                } else {
-                    LOGGER.warn("[{}] is not a directory or a regular file", rootPath);
-                }
-            }
-        });
+		job.sendProgress();
 
-        new ErrorReporter(pathEscapeFunction).report(unreadablePaths);
-        
-        duplicatesFinder.extractDuplicates(readablePaths, uniqueElements, duplicates);
-    }
+		final Collection<PathElement> readablePaths = newConcurrentHashSet();
+		final Collection<Path> unreadablePaths = newConcurrentHashSet();
 
-    private void handleDirectory(final Path path,
-                                 final Collection<PathElement> paths,
-                                 final Collection<Path> pathsInError) {
-        try (final DirectoryStream<Path> stream = Files.newDirectoryStream(path, filenamePredicate)) {
-            stream.forEach(p -> {
-                if (Files.isDirectory(p)) {
-                    getMetricRegistry().counter(name("fs", "counter", "directories")).inc();
+		readablePaths.clear();
+		
+		inputPaths.forEach(rootPath -> {
+			final Path path = Paths.get(rootPath);
 
-                    handleDirectory(p, paths, pathsInError);
-                } else {
-                    handleRegularFile(p, paths, pathsInError);
-                }
-            });
-        } catch (final IOException e) {
-            LOGGER.error(e.getMessage(), e);
-        }
-    }
 
-    private void handleRegularFile(final Path path,
-                                   final Collection<PathElement> paths,
-                                   final Collection<Path> pathsInError) {
-        try {
-            try (final Timer.Context ignored = getMetricRegistry().timer(name("fs", "timer", "files", "attributes", "read")).time()) {
-                paths.add(new PathElement(path, Files.readAttributes(path, BasicFileAttributes.class)));
-            }
+			if (filenamePredicate.accept(path)) {
+				if (Files.isDirectory(path)) {
+					handleDirectory(path, readablePaths, unreadablePaths);
+				} else if (Files.isRegularFile(path)) {
+					handleRegularFile(path, readablePaths, unreadablePaths);
+				} else {
+					LOGGER.warn("[{}] is not a directory or a regular file", rootPath);
+				}
+			}
 
-            getMetricRegistry().counter(name("fs", "counter", "files", "ok")).inc();
-            this.duplicateJob.sendProgress();
-        } catch (final IOException ignored) {
-            pathsInError.add(path);
 
-            getMetricRegistry().counter(name("fs", "counter", "files", "ko")).inc();
-            this.duplicateJob.sendProgress();
-        }
-    }
+
+		});
+
+		new ErrorReporter(pathEscapeFunction).report(unreadablePaths);
+
+		duplicatesFinder.extractDuplicates(readablePaths, uniqueElements, duplicates);
+	}
+
+	private void handleDirectory(final Path path,
+			final Collection<PathElement> paths,
+			final Collection<Path> pathsInError) {
+		try (final DirectoryStream<Path> stream = Files.newDirectoryStream(path, filenamePredicate)) {
+			stream.forEach(p -> {
+				if (Files.isDirectory(p)) {
+					
+					
+					getMetricRegistry().counter(name("fs", "counter", "directories")).inc();
+
+					handleDirectory(p, paths, pathsInError);
+
+
+				} else {
+					handleRegularFile(p, paths, pathsInError);
+				}
+			});
+		} catch (final IOException e) {
+			LOGGER.error(e.getMessage(), e);
+		}
+	}
+
+	private void handleRegularFile(final Path path,
+			final Collection<PathElement> paths,
+			final Collection<Path> pathsInError) {
+		try {
+			try (final Timer.Context ignored = getMetricRegistry().timer(name("fs", "timer", "files", "attributes", "read")).time()) {
+				paths.add(new PathElement(path, Files.readAttributes(path, BasicFileAttributes.class)));
+			}
+
+			getMetricRegistry().counter(name("fs", "counter", "files", "ok")).inc();
+			this.duplicateJob.sendProgress();
+		} catch (final IOException ignored) {
+			pathsInError.add(path);
+
+			getMetricRegistry().counter(name("fs", "counter", "files", "ko")).inc();
+			this.duplicateJob.sendProgress();
+		}
+	}
 
 }

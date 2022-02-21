@@ -42,6 +42,7 @@ import com.hawkins.properties.ModelAttributes;
 import com.hawkins.service.DuplicateFinderService;
 import com.hawkins.utils.Constants;
 import com.hawkins.utils.PagingUtils;
+import com.hawkins.utils.SystemUtils;
 import com.hawkins.utils.Utils;
 
 @Controller
@@ -91,6 +92,7 @@ public class DuplicateController {
 		final int pageSize = size.orElse(5);
 		
 		ModelAttributes modelAttributes = ModelAttributes.getInstance();
+		SystemUtils systemUtils = SystemUtils.getInstance();
 
 		String activeTemplate = Constants.TEMPLATE_MAIN;
 
