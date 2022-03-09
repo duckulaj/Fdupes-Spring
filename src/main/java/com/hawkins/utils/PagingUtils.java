@@ -15,40 +15,46 @@ import com.hawkins.paging.Paging;
 
 public class PagingUtils {
 
-	
+
 	public static Page<ExtendedFile> findPaginated(Pageable pageable, List<ExtendedFile> duplicates) {
-        
+
 		int pageSize = pageable.getPageSize();
-        int currentPage = pageable.getPageNumber();
-        int startItem = currentPage * pageSize;
-        List<ExtendedFile> list;
+		int currentPage = pageable.getPageNumber();
+		int startItem = currentPage * pageSize;
+		List<ExtendedFile> list;
 
-        if (duplicates.size() < startItem) {
-            list = Collections.emptyList();
-        } else {
-            int toIndex = Math.min(startItem + pageSize, duplicates.size());
-            list = duplicates.subList(startItem, toIndex);
-        }
+		if (duplicates.size() < startItem) {
+			list = Collections.emptyList();
+		} else {
+			int toIndex = Math.min(startItem + pageSize, duplicates.size());
+			list = duplicates.subList(startItem, toIndex);
+		}
 
-        Page<ExtendedFile> filePage
-          = new PageImpl<ExtendedFile>(list, PageRequest.of(currentPage, pageSize), duplicates.size());
-
-        return filePage;
-    }
-	
-	public static Paged<ExtendedFile> getPage(int pageNumber, int size,  List<ExtendedFile> duplicates) {
-		 List<ExtendedFile> list;
-		 int startItem = pageNumber * size;
-		 
-		 if (duplicates.size() < startItem) {
-	            list = Collections.emptyList();
-	        } else {
-	            int toIndex = Math.min(startItem + size, duplicates.size());
-	            list = duplicates.subList(startItem, toIndex);
-	        }
-		 
 		Page<ExtendedFile> filePage
-        = new PageImpl<ExtendedFile>(list, PageRequest.of(pageNumber, size), duplicates.size());
-        return new Paged<>(filePage, Paging.of(filePage.getTotalPages(), pageNumber, size));
-    }
+		= new PageImpl<ExtendedFile>(list, PageRequest.of(currentPage, pageSize), duplicates.size());
+
+		return filePage;
+	}
+
+	public static Paged<ExtendedFile> getPage(int pageNumber, int size,  List<ExtendedFile> duplicates) {
+		List<ExtendedFile> list;
+		int startItem = pageNumber * size;
+
+		if (duplicates.size() == 0) {
+			list = Collections.emptyList();
+		}
+		else {
+			if (duplicates.size() < startItem) {
+				list = duplicates;
+				
+			} else {
+				int toIndex = Math.min(startItem + size, duplicates.size());
+				list = duplicates.subList(startItem, toIndex);
+			}
+		}
+
+		Page<ExtendedFile> filePage
+		= new PageImpl<ExtendedFile>(list, PageRequest.of(pageNumber, size), duplicates.size());
+		return new Paged<>(filePage, Paging.of(filePage.getTotalPages(), pageNumber, size));
+	}
 }

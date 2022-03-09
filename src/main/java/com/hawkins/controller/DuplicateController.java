@@ -146,8 +146,8 @@ public class DuplicateController {
 
 
 				modelAttributes.setSearchFolder(searchFolder);
-				// modelAttributes.setUniqueFiles(uniqueFiles);
-				// modelAttributes.setDuplicateFiles(duplicateFiles);
+				modelAttributes.setUniqueFiles(uniqueFiles);
+				modelAttributes.setDuplicateFiles(duplicateFiles);
 				modelAttributes.setDuplicateListPage(duplicateListPage);
 				modelAttributes.setDuplicateListPageNew(duplicateListPageNew);
 				modelAttributes.setByteCount(gaugeResults.getByteCount());
@@ -239,7 +239,7 @@ public class DuplicateController {
 		model.addAttribute("searchFolder", modelAttributes.getSearchFolder());
 		model.addAttribute("foundFiles", modelAttributes.getUniqueFiles());
 		model.addAttribute("duplicateFiles", modelAttributes.getDuplicateFiles());
-		model.addAttribute("duplicateListPage", modelAttributes.getDuplicateListPage());
+		// model.addAttribute("duplicateListPage", modelAttributes.getDuplicateListPage());
 		model.addAttribute("posts", modelAttributes.getDuplicateListPageNew());
 		model.addAttribute("result", modelAttributes.getByteCount());
 		model.addAttribute("duplicateFileSize", modelAttributes.getDuplicateFileSize());
