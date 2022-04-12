@@ -9,15 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.hawkins.utils.Constants;
 import com.hawkins.utils.Utils;
 
-public class DuplicateProperties implements Runnable {
+import lombok.extern.slf4j.Slf4j;
 
-	private static final Logger logger = LogManager.getLogger(DuplicateProperties.class.getName());
+@Slf4j
+public class DuplicateProperties implements Runnable {
 
 	private static DuplicateProperties thisInstance = null;
 
@@ -33,7 +31,7 @@ public class DuplicateProperties implements Runnable {
 
 	public static synchronized DuplicateProperties getInstance()
 	{
-		logger.debug("Requesting M3UPlayList instance");
+		log.debug("Requesting M3UPlayList instance");
 
 		if (DuplicateProperties.thisInstance == null)
 		{
@@ -52,12 +50,12 @@ public class DuplicateProperties implements Runnable {
 			Files.copy(sourceFile, targetFile, StandardCopyOption.REPLACE_EXISTING);
 
 		} catch (IOException ioe) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("I/O Error when copying file");
+			if (log.isDebugEnabled()) {
+				log.debug("I/O Error when copying file");
 			}
 		} catch (Exception e) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Exception copying file");
+			if (log.isDebugEnabled()) {
+				log.debug("Exception copying file");
 			}
 		}
 

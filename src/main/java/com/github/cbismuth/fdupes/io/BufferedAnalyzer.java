@@ -24,13 +24,8 @@
 
 package com.github.cbismuth.fdupes.io;
 
-import com.github.cbismuth.fdupes.cli.SystemPropertyGetter;
-import com.github.cbismuth.fdupes.collect.PathComparator;
-import com.github.cbismuth.fdupes.container.immutable.PathElement;
-import com.github.cbismuth.fdupes.container.mutable.ByteBuffer;
-import com.google.common.collect.Multimap;
-import org.slf4j.Logger;
-import org.springframework.stereotype.Component;
+import static com.github.cbismuth.fdupes.container.mutable.MultimapCollector.toMultimap;
+import static java.util.stream.Collectors.toList;
 
 import java.text.NumberFormat;
 import java.util.Collection;
@@ -38,14 +33,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.github.cbismuth.fdupes.container.mutable.MultimapCollector.toMultimap;
-import static java.util.stream.Collectors.toList;
-import static org.slf4j.LoggerFactory.getLogger;
+import org.springframework.stereotype.Component;
 
+import com.github.cbismuth.fdupes.cli.SystemPropertyGetter;
+import com.github.cbismuth.fdupes.collect.PathComparator;
+import com.github.cbismuth.fdupes.container.immutable.PathElement;
+import com.github.cbismuth.fdupes.container.mutable.ByteBuffer;
+import com.google.common.collect.Multimap;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 public class BufferedAnalyzer {
-
-    private static final Logger LOGGER = getLogger(BufferedAnalyzer.class);
 
     private final PathComparator pathComparator;
     private final SystemPropertyGetter systemPropertyGetter;
@@ -120,7 +120,7 @@ public class BufferedAnalyzer {
                                           .mapToLong(PathElement::size)
                                           .sum() / 1024.0 / 1024.0;
 
-        LOGGER.info("Total size of duplicated files is {} mb", NumberFormat.getNumberInstance().format(sizeInMb));
+        log.info("Total size of duplicated files is {} mb", NumberFormat.getNumberInstance().format(sizeInMb));
     }
     
     public static String returnDuplicationSize(final Multimap<PathElement, PathElement> duplicates) {

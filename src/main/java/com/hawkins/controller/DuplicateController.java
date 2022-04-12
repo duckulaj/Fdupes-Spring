@@ -2,7 +2,6 @@ package com.hawkins.controller;
 
 import static com.google.common.collect.Multimaps.synchronizedListMultimap;
 import static com.google.common.collect.Sets.newConcurrentHashSet;
-import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +10,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.Environment;
@@ -22,7 +20,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -45,6 +42,9 @@ import com.hawkins.utils.PagingUtils;
 import com.hawkins.utils.SystemUtils;
 import com.hawkins.utils.Utils;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Controller
 public class DuplicateController {
 
@@ -63,8 +63,6 @@ public class DuplicateController {
 
 	@Autowired
 	private SimpMessagingTemplate template;
-
-	private static final Logger LOGGER = getLogger(DuplicateController.class);
 
 	private List<ExtendedFile> duplicateList;
 	private Page<ExtendedFile> duplicateListPage;
@@ -170,14 +168,14 @@ public class DuplicateController {
 
 
 		} catch (final OutOfMemoryError ignored) {
-			LOGGER.error("Not enough memory, solutions are:");
-			LOGGER.error("\t- increase Java heap size (e.g. -Xmx512m),");
-			LOGGER.error("\t- decrease byte buffer size (e.g. -Dfdupes.buffer.size=8k - default is 64k),");
-			LOGGER.error("\t- reduce the level of parallelism (e.g. -Dfdupes.parallelism=1).");
+			log.error("Not enough memory, solutions are:");
+			log.error("\t- increase Java heap size (e.g. -Xmx512m),");
+			log.error("\t- decrease byte buffer size (e.g. -Dfdupes.buffer.size=8k - default is 64k),");
+			log.error("\t- reduce the level of parallelism (e.g. -Dfdupes.parallelism=1).");
 
 			return Constants.TEMPLATE_MAIN;
 		} catch (Exception e) {
-			LOGGER.error(e.getMessage());
+			log.error(e.getMessage());
 			return Constants.TEMPLATE_MAIN;
 		}
 

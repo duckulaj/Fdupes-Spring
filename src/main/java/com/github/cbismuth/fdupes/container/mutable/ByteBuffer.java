@@ -24,23 +24,20 @@
 
 package com.github.cbismuth.fdupes.container.mutable;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.slf4j.Logger;
-
 import com.github.cbismuth.fdupes.container.immutable.PathElement;
 import com.google.common.base.VerifyException;
 import com.google.common.primitives.UnsignedBytes;
 
-public class ByteBuffer {
+import lombok.extern.slf4j.Slf4j;
 
-    private static final Logger LOGGER = getLogger(ByteBuffer.class);
+@Slf4j
+public class ByteBuffer {
 
     private final PathElement pathElement;
     private final BufferedInputStream inputStream;
@@ -87,7 +84,7 @@ public class ByteBuffer {
         try {
             inputStream.close();
         } catch (final IOException e) {
-            LOGGER.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
 
         return this;

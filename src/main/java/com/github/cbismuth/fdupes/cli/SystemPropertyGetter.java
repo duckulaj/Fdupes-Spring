@@ -25,17 +25,15 @@
 package com.github.cbismuth.fdupes.cli;
 
 import org.apache.spark.network.util.JavaUtils;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import static org.slf4j.LoggerFactory.getLogger;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 public class SystemPropertyGetter {
-
-    private static final Logger LOGGER = getLogger(SystemPropertyGetter.class);
 
     private static final int DEFAULT_BUFFER_SIZE = 4 * 1024;
 
@@ -62,7 +60,7 @@ public class SystemPropertyGetter {
         try {
             return Math.toIntExact(JavaUtils.byteStringAsBytes(property));
         } catch (final NumberFormatException | ArithmeticException ignored) {
-            LOGGER.error("Unrecognized buffer size format [{}] fallback to [{}] bytes", property, DEFAULT_BUFFER_SIZE);
+            log.error("Unrecognized buffer size format [{}] fallback to [{}] bytes", property, DEFAULT_BUFFER_SIZE);
 
             return DEFAULT_BUFFER_SIZE;
         }
@@ -73,7 +71,7 @@ public class SystemPropertyGetter {
     	if (environment == null) return 1;
     	
     	int parallelism = environment.getProperty("fdupes.parallelism", Integer.class, 1);
-    	LOGGER.info("parallelism = {}", parallelism);
+    	log.info("parallelism = {}", parallelism);
         return parallelism;
     }
 

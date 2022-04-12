@@ -24,12 +24,8 @@
 
 package com.github.cbismuth.fdupes.collect;
 
-import com.github.cbismuth.fdupes.io.DirectoryWalker;
-import com.google.common.base.Preconditions;
-import com.hawkins.utils.SystemUtils;
-
-import org.slf4j.Logger;
-import org.springframework.stereotype.Component;
+import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.unmodifiableCollection;
 
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -38,16 +34,18 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static java.util.Collections.unmodifiableCollection;
-import static org.slf4j.LoggerFactory.getLogger;
+import org.springframework.stereotype.Component;
 
+import com.google.common.base.Preconditions;
+import com.hawkins.utils.SystemUtils;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 public final class FilenamePredicate implements DirectoryStream.Filter<Path> {
 
-	private static final Logger LOGGER = getLogger(FilenamePredicate.class);
-	
-    private static final Collection<String> FILENAME_STOP_WORDS = unmodifiableCollection(newArrayList(
+	private static final Collection<String> FILENAME_STOP_WORDS = unmodifiableCollection(newArrayList(
         // OS X
         ".ds_store",
 

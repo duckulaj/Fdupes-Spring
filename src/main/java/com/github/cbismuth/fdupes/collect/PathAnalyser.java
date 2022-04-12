@@ -24,9 +24,7 @@
 
 package com.github.cbismuth.fdupes.collect;
 
-import org.apache.commons.io.FilenameUtils;
-import org.slf4j.Logger;
-import org.springframework.stereotype.Component;
+import static java.util.Locale.getDefault;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,13 +33,14 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static java.util.Locale.getDefault;
-import static org.slf4j.LoggerFactory.getLogger;
+import org.apache.commons.io.FilenameUtils;
+import org.springframework.stereotype.Component;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 public class PathAnalyser {
-
-    private static final Logger LOGGER = getLogger(PathAnalyser.class);
 
     private static final Pattern PATTERN_1 = Pattern.compile("^([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2}).*\\.([^\\.]+)$");
     private static final Pattern PATTERN_2 = Pattern.compile("^.*\\D([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2}).*\\.([^\\.]+)$");
@@ -59,7 +58,7 @@ public class PathAnalyser {
             if (matcher_2.matches()) {
                 result = Optional.of(onMatch(destination, matcher_2));
             } else {
-                LOGGER.warn("File [{}] doesn't match pattern", path);
+                log.warn("File [{}] doesn't match pattern", path);
 
                 result = Optional.empty();
             }

@@ -22,9 +22,6 @@ import java.util.SortedMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Gauge;
 import com.github.cbismuth.fdupes.container.immutable.PathElement;
@@ -33,11 +30,12 @@ import com.hawkins.file.ExtendedFile;
 import com.hawkins.objects.GaugeResults;
 import com.hawkins.properties.DuplicateProperties;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class Utils {
 
 	private static String propertyFile;
-
-	private static final Logger logger = LogManager.getLogger(Utils.class.getName());
 
 	public static List<ExtendedFile> getDuplicates (Multimap<PathElement, PathElement> duplicates) {
 
@@ -53,8 +51,8 @@ public class Utils {
 			duplicateFiles.add(thisFile);
 		}
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("[] duplicates found", duplicateFiles.size());
+		if (log.isDebugEnabled()) {
+			log.debug("[] duplicates found", duplicateFiles.size());
 		}
 
 		return duplicateFiles;
@@ -74,8 +72,8 @@ public class Utils {
 			uniqueFiles.add(thisFile);
 		});
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("[] unique files found", uniqueFiles.size());
+		if (log.isDebugEnabled()) {
+			log.debug("[] unique files found", uniqueFiles.size());
 		}	
 
 		return uniqueFiles;
@@ -148,14 +146,14 @@ public class Utils {
 			userHome += File.separator;
 		}
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Utils.readProperties :: Looking for {}Fdupes/{}", userHome, propertyType);
+		if (log.isDebugEnabled()) {
+			log.debug("Utils.readProperties :: Looking for {}Fdupes/{}", userHome, propertyType);
 		}
 
 		File configFile = new File(userHome, "Fdupes/" + propertyType);
 
-		if (!configFile.exists() && logger.isDebugEnabled()) {
-			logger.debug("{} does not exist", propertyType);
+		if (!configFile.exists() && log.isDebugEnabled()) {
+			log.debug("{} does not exist", propertyType);
 		}
 
 		Properties props = new Properties();
@@ -165,15 +163,15 @@ public class Utils {
 			props.load(reader);
 			reader.close();
 		} catch (FileNotFoundException fnfe) {
-			logger.debug(fnfe.toString());
+			log.debug(fnfe.toString());
 		} catch (IOException ioe) {
-			logger.debug(ioe.toString());
+			log.debug(ioe.toString());
 		}
 
 		long end = System.currentTimeMillis();
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("readProperties executed in {} ms", (end - start));
+		if (log.isDebugEnabled()) {
+			log.debug("readProperties executed in {} ms", (end - start));
 		}
 		return props;
 	}
@@ -189,13 +187,13 @@ public class Utils {
 			// save properties to project root folder
 			prop.store(output, null);
 
-			if (logger.isDebugEnabled()) {
-				logger.debug(prop);
+			if (log.isDebugEnabled()) {
+				log.debug(prop.toString());
 			}
 
 		} catch (IOException io) {
-			if (logger.isDebugEnabled()) {
-				logger.debug(io.getMessage());
+			if (log.isDebugEnabled()) {
+				log.debug(io.getMessage());
 			}
 		}
 

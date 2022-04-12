@@ -2,17 +2,16 @@ package com.hawkins.properties;
 
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
 
 import com.hawkins.file.ExtendedFile;
 import com.hawkins.paging.Paged;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class ModelAttributes implements Runnable {
 
-	private static final Logger logger = LogManager.getLogger(ModelAttributes.class.getName());
-	
 	private static ModelAttributes thisInstance = null;
 	
 	private String searchFolder;
@@ -32,7 +31,7 @@ public class ModelAttributes implements Runnable {
 	
 	public static synchronized ModelAttributes getInstance()
 	{
-		logger.debug("Requesting M3UPlayList instance");
+		log.debug("Requesting M3UPlayList instance");
 
 		if (ModelAttributes.thisInstance == null)
 		{

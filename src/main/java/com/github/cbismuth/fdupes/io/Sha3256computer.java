@@ -27,9 +27,7 @@ package com.github.cbismuth.fdupes.io;
 import static com.codahale.metrics.MetricRegistry.name;
 import static com.github.cbismuth.fdupes.metrics.MetricRegistrySingleton.getMetricRegistry;
 import static java.util.UUID.randomUUID;
-import static org.slf4j.LoggerFactory.getLogger;
 
-import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
 import com.codahale.metrics.Timer;
@@ -38,10 +36,11 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.VerifyException;
 import com.hawkins.utils.HashingUtils;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 public class Sha3256computer {
-
-    private static final Logger LOGGER = getLogger(Sha3256computer.class);
 
     public String compute(final PathElement pathElement) {
         Preconditions.checkNotNull(pathElement, "null file metadata");
@@ -49,7 +48,7 @@ public class Sha3256computer {
         try (final Timer.Context ignored = getMetricRegistry().timer(name("SHA3-256", "timer")).time()) {
             return doIt(pathElement);
         } catch (final Exception e) {
-            LOGGER.error("Can't compute SHA3-256 from file [{}] ([{}]: [{}])",
+            log.error("Can't compute SHA3-256 from file [{}] ([{}]: [{}])",
                          pathElement.getPath(), e.getClass().getSimpleName(), e.getMessage());
 
             return randomUUID().toString();

@@ -24,12 +24,7 @@
 
 package com.github.cbismuth.fdupes.io;
 
-import com.github.cbismuth.fdupes.collect.PathAnalyser;
-import com.github.cbismuth.fdupes.container.immutable.PathElement;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.slf4j.Logger;
-import org.springframework.stereotype.Component;
+import static java.lang.System.currentTimeMillis;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -38,13 +33,18 @@ import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static java.lang.System.currentTimeMillis;
-import static org.slf4j.LoggerFactory.getLogger;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.springframework.stereotype.Component;
 
+import com.github.cbismuth.fdupes.collect.PathAnalyser;
+import com.github.cbismuth.fdupes.container.immutable.PathElement;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 public class PathOrganizer {
-
-    private static final Logger LOGGER = getLogger(PathOrganizer.class);
 
     private final PathAnalyser pathAnalyser = new PathAnalyser();
 
@@ -83,7 +83,7 @@ public class PathOrganizer {
                 timestampPath.toFile()
             );
         } catch (final IOException e) {
-            LOGGER.error(e.getMessage());
+            log.error(e.getMessage());
         }
     }
 
@@ -112,7 +112,7 @@ public class PathOrganizer {
                 true
             );
         } catch (final IOException e) {
-            LOGGER.error(e.getMessage());
+            log.error(e.getMessage());
         }
     }
 

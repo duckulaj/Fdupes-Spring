@@ -27,7 +27,6 @@ package com.github.cbismuth.fdupes.io;
 import static com.codahale.metrics.MetricRegistry.name;
 import static com.github.cbismuth.fdupes.metrics.MetricRegistrySingleton.getMetricRegistry;
 import static com.google.common.collect.Sets.newConcurrentHashSet;
-import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -36,10 +35,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -55,12 +52,12 @@ import com.github.cbismuth.fdupes.stream.DuplicatesFinder;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Multimap;
 import com.hawkins.jobs.DuplicateJob;
-import com.hawkins.utils.SystemUtils;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 public class DirectoryWalker {
-
-	private static final Logger LOGGER = getLogger(DirectoryWalker.class);
 
 	@Autowired
 	private Environment environment;
@@ -104,7 +101,7 @@ public class DirectoryWalker {
 				} else if (Files.isRegularFile(path)) {
 					handleRegularFile(path, readablePaths, unreadablePaths);
 				} else {
-					LOGGER.warn("[{}] is not a directory or a regular file", rootPath);
+					log.warn("[{}] is not a directory or a regular file", rootPath);
 				}
 			}
 
@@ -135,7 +132,7 @@ public class DirectoryWalker {
 				}
 			});
 		} catch (final IOException e) {
-			LOGGER.error(e.getMessage(), e);
+			log.error(e.getMessage(), e);
 		}
 	}
 
