@@ -39,9 +39,7 @@ import org.springframework.stereotype.Component;
 import com.google.common.base.Preconditions;
 import com.hawkins.utils.SystemUtils;
 
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Component
 public final class FilenamePredicate implements DirectoryStream.Filter<Path> {
 

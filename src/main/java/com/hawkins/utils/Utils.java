@@ -203,6 +203,8 @@ public class Utils {
 	public static GaugeResults getGaugeResults() {
 
 		GaugeResults results = new GaugeResults();
+		
+		@SuppressWarnings("rawtypes")
 		SortedMap<String, Gauge> gauges = getMetricRegistry().getGauges();
 		SortedMap<String, Counter> counters = getMetricRegistry().getCounters();
 

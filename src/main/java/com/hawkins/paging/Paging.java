@@ -23,7 +23,7 @@ public class Paging {
     private int pageSize;
     private int pageNumber;
 
-    private List<PageItem> items = new ArrayList<>();
+    private final List<PageItem> items = new ArrayList<>();
 
     public void addPageItems(int from, int to, int pageNumber) {
         for (int i = from; i < to; i++) {

@@ -9,13 +9,12 @@ import com.google.common.io.Files;
 public class HashingUtils {
 
 
-	public static String md5(PathElement file) {
-		try {
-			return Files.asByteSource(file.getPath().toFile()).hash(Hashing.md5()).toString();
-		} catch (Exception e) {
-			throw new RuntimeException(String.format("Failed to calculate md5 of %s", file));
-		}
-	}	
+	/*
+	 * public static String md5(PathElement file) { try { return
+	 * Files.asByteSource(file.getPath().toFile()).hash(Hashing.md5()).toString(); }
+	 * catch (Exception e) { throw new
+	 * RuntimeException(String.format("Failed to calculate md5 of %s", file)); } }
+	 */	
 
 	public static String shaSum256(PathElement file) {
 		try {

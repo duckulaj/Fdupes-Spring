@@ -37,7 +37,6 @@ import com.github.cbismuth.fdupes.cli.SystemPropertyGetter;
 import com.github.cbismuth.fdupes.collect.PathComparator;
 import com.github.cbismuth.fdupes.container.immutable.PathElement;
 import com.github.cbismuth.fdupes.io.BufferedAnalyzer;
-import com.github.cbismuth.fdupes.io.Md5Computer;
 import com.github.cbismuth.fdupes.io.Sha3256computer;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Multimap;
@@ -48,19 +47,18 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class DuplicatesFinder {
 
-	private final Md5Computer md5Computer;
+	
 	private final Sha3256computer sha3256Computer;
 	private final DuplicateFinderByKey duplicateFinderByKey;
 	private final PathComparator pathComparator;
 	private final SystemPropertyGetter systemPropertyGetter;
 
-	public DuplicatesFinder(final Md5Computer md5Computer,
-			final Sha3256computer sha3256computer,
+	public DuplicatesFinder(final Sha3256computer sha3256computer,
 			final DuplicateFinderByKey duplicateFinderByKey,
 			final PathComparator pathComparator,
 			final SystemPropertyGetter systemPropertyGetter) {
 		this.duplicateFinderByKey = duplicateFinderByKey;
-		this.md5Computer = md5Computer;
+		
 		this.sha3256Computer = sha3256computer;
 		this.pathComparator = pathComparator;
 		this.systemPropertyGetter = systemPropertyGetter;
@@ -81,11 +79,16 @@ public class DuplicatesFinder {
 		log.info("Pass 1/3 - compare file by size completed! - {} duplicate(s) found", duplicatesBySize.size());
 
 
-		getMetricRegistry().remove(name("duplicates", "by-md5", "count"));
-		log.info("Pass 2/3 - compare file by MD5 ...");
-		final Collection<PathElement> duplicatesByMd5 = duplicateFinderByKey.getDuplicates(duplicatesBySize, md5Computer::compute, uniqueElements); 
-		getMetricRegistry().register(name("duplicates", "by-md5", "count"), (Gauge<Integer>) duplicatesByMd5::size); log.
-		info("Pass 2/3 - compare file by MD5 completed! - {} duplicate(s) found", duplicatesByMd5.size());
+		/*
+		 * getMetricRegistry().remove(name("duplicates", "by-md5", "count"));
+		 * log.info("Pass 2/3 - compare file by MD5 ..."); final Collection<PathElement>
+		 * duplicatesByMd5 = duplicateFinderByKey.getDuplicates(duplicatesBySize,
+		 * md5Computer::compute, uniqueElements);
+		 * getMetricRegistry().register(name("duplicates", "by-md5", "count"),
+		 * (Gauge<Integer>) duplicatesByMd5::size); log.
+		 * info("Pass 2/3 - compare file by MD5 completed! - {} duplicate(s) found",
+		 * duplicatesByMd5.size());
+		 */
 
 		getMetricRegistry().remove(name("duplicates", "by-sha3-256", "count"));
 		log.info("Pass 2/3 - compare file by SHA3-256 ..."); final

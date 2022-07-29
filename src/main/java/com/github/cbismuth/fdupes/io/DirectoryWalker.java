@@ -66,10 +66,10 @@ public class DirectoryWalker {
 	private final FilenamePredicate filenamePredicate;
 	private final PathEscapeFunction pathEscapeFunction;
 	private DuplicateJob duplicateJob;
-	private boolean okToContinue;
+	
 
 	public DirectoryWalker() {
-		this.duplicatesFinder = new DuplicatesFinder(new Md5Computer(), new Sha3256computer(), new DuplicateFinderByKey(), new PathComparator(), new SystemPropertyGetter(environment));
+		this.duplicatesFinder = new DuplicatesFinder(new Sha3256computer(), new DuplicateFinderByKey(), new PathComparator(), new SystemPropertyGetter(environment));
 		this.filenamePredicate = new FilenamePredicate();
 		this.pathEscapeFunction = new PathEscapeFunction();
 	}

@@ -24,53 +24,32 @@
 
 package com.github.cbismuth.fdupes.io;
 
-import static com.codahale.metrics.MetricRegistry.name;
-import static com.github.cbismuth.fdupes.metrics.MetricRegistrySingleton.getMetricRegistry;
-import static java.util.UUID.randomUUID;
-
 import org.springframework.stereotype.Component;
 
-import com.codahale.metrics.Timer;
-import com.github.cbismuth.fdupes.container.immutable.PathElement;
-import com.google.common.base.Preconditions;
-import com.google.common.base.VerifyException;
-import com.hawkins.utils.HashingUtils;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 @Component
 public class Md5Computer {
 
-    public String compute(final PathElement pathElement) {
-        Preconditions.checkNotNull(pathElement, "null file metadata");
-
-        try (final Timer.Context ignored = getMetricRegistry().timer(name("md5", "timer")).time()) {
-            return doIt(pathElement);
-        } catch (final Exception e) {
-            log.error("Can't compute MD5 from file [{}] ([{}]: [{}])",
-                         pathElement.getPath(), e.getClass().getSimpleName(), e.getMessage());
-
-            return randomUUID().toString();
-        }
-    }
-
-    private String doIt(final PathElement element) {
-        try {
-            /*return new ProcessExecutor().command(getNativeMd5Command(element))
-                                        .readOutput(true)
-                                        .execute()
-                                        .outputString()
-                                        .split("\\s")[1];
-            */
-            return HashingUtils.md5(element);
-            
-        } catch (final Throwable e) {
-        	throw new VerifyException(e);	
-        }
-    }
-
 	/*
+	 * public String compute(final PathElement pathElement) {
+	 * Preconditions.checkNotNull(pathElement, "null file metadata");
+	 * 
+	 * try (final Timer.Context ignored = getMetricRegistry().timer(name("md5",
+	 * "timer")).time()) { return doIt(pathElement); } catch (final Exception e) {
+	 * log.error("Can't compute MD5 from file [{}] ([{}]: [{}])",
+	 * pathElement.getPath(), e.getClass().getSimpleName(), e.getMessage());
+	 * 
+	 * return randomUUID().toString(); } }
+	 * 
+	 * private String doIt(final PathElement element) { try { return new
+	 * ProcessExecutor().command(getNativeMd5Command(element)) .readOutput(true)
+	 * .execute() .outputString() .split("\\s")[1];
+	 * 
+	 * return HashingUtils.md5(element);
+	 * 
+	 * } catch (final Throwable e) { throw new VerifyException(e); } }
+	 *
+	 *
 	 * private Iterable<String> getNativeMd5Command(final PathElement element) {
 	 * return newArrayList("openssl", "md5", element.getPath().toString()); }
 	 */

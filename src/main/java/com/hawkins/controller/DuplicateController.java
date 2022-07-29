@@ -70,7 +70,7 @@ public class DuplicateController {
 
 	private boolean useMessaging = false;
 
-	@Autowired
+	// @Autowired
 	DuplicateController(DuplicateFinderService myService) {
 		this.myService = myService;
 	}
@@ -90,7 +90,7 @@ public class DuplicateController {
 		final int pageSize = size.orElse(5);
 		
 		ModelAttributes modelAttributes = ModelAttributes.getInstance();
-		SystemUtils systemUtils = SystemUtils.getInstance();
+		SystemUtils.getInstance();
 
 		String activeTemplate = Constants.TEMPLATE_MAIN;
 
