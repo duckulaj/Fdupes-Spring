@@ -24,17 +24,18 @@
 
 package com.github.cbismuth.fdupes.stream;
 
-import com.github.cbismuth.fdupes.container.immutable.PathElement;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Multimap;
-import org.springframework.stereotype.Component;
+import static com.github.cbismuth.fdupes.container.mutable.MultimapCollector.toMultimap;
+import static java.util.stream.Collectors.toList;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Function;
 
-import static com.github.cbismuth.fdupes.container.mutable.MultimapCollector.toMultimap;
-import static java.util.stream.Collectors.toList;
+import org.springframework.stereotype.Component;
+
+import com.github.cbismuth.fdupes.container.immutable.PathElement;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Multimap;
 
 @Component
 public class DuplicateFinderByKey {

@@ -24,10 +24,8 @@
 
 package com.github.cbismuth.fdupes.container.mutable;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multimap;
+import static com.google.common.collect.Multimaps.synchronizedListMultimap;
+import static java.util.stream.Collector.Characteristics.UNORDERED;
 
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -36,8 +34,10 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 
-import static com.google.common.collect.Multimaps.synchronizedListMultimap;
-import static java.util.stream.Collector.Characteristics.UNORDERED;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Multimap;
 
 public final class MultimapCollector<T, K, V> implements Collector<T, Multimap<K, V>, Multimap<K, V>> {
 

@@ -24,8 +24,8 @@
 
 package com.github.cbismuth.fdupes.report;
 
-import com.github.cbismuth.fdupes.io.PathEscapeFunction;
-import org.springframework.stereotype.Component;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.stream.Collectors.joining;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,8 +33,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.stream.Collectors.joining;
+import org.springframework.stereotype.Component;
+
+import com.github.cbismuth.fdupes.io.PathEscapeFunction;
 
 @Component
 public class ErrorReporter {

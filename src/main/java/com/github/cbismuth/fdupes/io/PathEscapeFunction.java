@@ -24,12 +24,13 @@
 
 package com.github.cbismuth.fdupes.io;
 
-import com.google.common.base.Preconditions;
-import org.springframework.stereotype.Component;
+import static java.lang.String.format;
 
 import java.util.function.Function;
 
-import static java.lang.String.format;
+import org.springframework.stereotype.Component;
+
+import com.google.common.base.Preconditions;
 
 @Component
 public final class PathEscapeFunction implements Function<String, String> {
